@@ -1,7 +1,7 @@
 exports.run = (bot, server, user) => {
   // unbans
 	let logs = bot.provider.get(server, 'logs');
-	if (logs && logs.enabled && logs.channel && (logs.fields.bans == null || logs.fields.bans === true)) {
+	if (logs && logs.enabled && logs.channel && logs.fields.bans === false) {
 		let embed = new bot.methods.Embed();
 		embed.setColor('#66ff99');
     // might change colour to lime green

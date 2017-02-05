@@ -7,13 +7,19 @@ const { oneLine } = require('common-tags');
 const path = require('path');
 const Raven = require('raven');
 const winston = require('winston');
+/*
+const memwatch = require('memwatch-next');
+const heapdump = require('heapdump');
+const cron = require('node-schedule');
+const moment = require('moment-timezone');
+*/
 
 const Database = require('./postgreSQL/PostgreSQL');
 const Redis = require('./redis/Redis');
 const SequelizeProvider = require('./postgreSQL/SequelizeProvider');
 const config = require('./settings');
-
 // const Thonk = require('./dataProviders/rethinkProvider');
+
 const loadEvents = require('./functions/loadEvents.js');
 const loadFunctions = require('./functions/loadFunctions.js');
 
@@ -67,6 +73,25 @@ client
 			client.methods.Embed = Discord.RichEmbed;
 			loadEvents(client);
 		});
+		/*
+		// memory leag debug
+	  memwatch.on('leak', function(info) {
+	    console.error(info);
+	    var file = './out/floofybot-' + process.pid + '-' + Date.now() + '.heapsnapshot';
+	    heapdump.writeSnapshot(file, function(err){
+	      if (err) console.error(err);
+	      else console.error('Wrote snapshot: ' + file);
+	    });
+	  });
+		*/
+		let servers = ` in ${client.guilds.size} servers!`;
+		let users = ` with ${client.users.size} users!`;
+		let games = [`type ${config.prefix}help for commands!`, 'with database testing...', servers, `type ${config.prefix}join to invite me!`, users];
+		client.user.setGame(servers);
+		setInterval(() => {
+			servers = `in ${client.guilds.size} servers!`;
+			client.user.setGame(games[Math.floor(Math.random() * games.length)]);
+		}, Math.floor(Math.random() * (600000 - 120000 + 1)) + 120000);
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })

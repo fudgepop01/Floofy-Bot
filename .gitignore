@@ -31,3 +31,8 @@ node_modules
 settings.json
 database.sqlite3
 .gitignore
+Song.js
+/commands/economy
+/commands/games
+/commands/music
+/commands/tags

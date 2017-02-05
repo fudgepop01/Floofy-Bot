@@ -1,12 +1,12 @@
 exports.run = (bot, member) => {
   // joined
-	var d = new Date();
+	let d = new Date();
 	let bans = bot.provider.get(member.guild, 'bans');
-	let logs = bot.provider.get(member.guild, 'logs');
-	let welcome = bot.provider.get(member.guild, 'welcome');
+	const logs = bot.provider.get(member.guild, 'logs');
+	const welcome = bot.provider.get(member.guild, 'welcome');
 	let rolestate = bot.provider.get(member.guild, 'welcome');
 
-	if (logs && logs.enabled && logs.channel && (logs.fields.joins == null || logs.fields.joins === true)) {
+	if (logs && logs.enabled && logs.channel && logs.fields.joins !== false) {
 		let embed = new bot.methods.Embed();
     // TODO: say how old the account is, also improve code here, its fucking shit man
 		embed.setColor('#66ff99').setTimestamp(new Date()).setAuthor(`${member.user.username} (${member.user.id})`, member.user.avatarURL);
@@ -29,18 +29,20 @@ exports.run = (bot, member) => {
 	if (welcome && welcome.enabled === true) {
 		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message)	member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
 
-		if (welcome.public && welcome.public.enabled === true && welcome.public.message)
+		if (welcome.public && welcome.public.enabled === true && welcome.public.message) {
 			if (welcome.public.channel && member.guild.channels.get(welcome.public.channel)) member.guild.channels.get(welcome.public.channel).sendMessage(welcome.public.message.replace(/\[user\]/g, member));
 			else member.guild.owner.sendMessage(`A new member joined in\`${member.guild.name}\`but a valid channel is not set! Please set a valid channel for welcome messages in\`${member.guild.name}\`!`);
+		}
 	}
 	// ROLESTATE
 	if (rolestate && rolestate.enabled === true && rolestate.users && rolestate.users[member.id]) {
 		let numDeletedRoles = 0;
 		let roles = rolestate.users[member.id].map(roleid => {
-			if (member.guild.roles.has(roleid)) { if (member.guild.roles.get(roleid).name !== '@everyone') return roleid; }
-			else numDeletedRoles++;
+			if (member.guild.roles.has(roleid)) {
+				if (member.guild.roles.get(roleid).name !== '@everyone') return roleid;
+			}	else { numDeletedRoles++; }
 		});
-		member.addRoles(roles).then(member => {
+		member.addRoles(roles).then(() => {
 			if (logs && logs.channel && logs.enabled) {
 				let embed = new bot.methods.Embed();
 				embed.setColor('#3333ff').setTimestamp(new Date()).setAuthor(`${member.user.username} (${member.user.id})`, member.user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);
@@ -53,10 +55,11 @@ exports.run = (bot, member) => {
 		}).catch(() => {
 			let roleNames = rolestate.users[member.id].map(roleid => {
 				let role = member.guild.roles.get(roleid);
-				if (member.guild.roles.has(role.id)) { if (role.name !== '@everyone') return role.name; }
-				else return 'DELETED ROLE';
+				if (member.guild.roles.has(role.id)) {
+					if (role.name !== '@everyone') return role.name;
+				}	else { return 'DELETED ROLE'; }
 			});
-			member.guild.owner.sendMessage(`\uD83D\uDEAB I do not have permissions to reinstate the roles for ${member} in the server \`${member.guild.name}\`. Here are the roles I remembered for this user:\n\`${roleNames.join(', ').substring(2)}\`.`).then(msg => {
+			member.guild.owner.sendMessage(`\uD83D\uDEAB I do not have permissions to reinstate the roles for ${member} in the server \`${member.guild.name}\`. Here are the roles I remembered for this user:\n\`${roleNames.join(', ').substring(2)}\`.`).then(() => {
 				delete rolestate.users[member.id];
 				bot.provider.set(member.guild, 'rolestate', rolestate);
 			});
