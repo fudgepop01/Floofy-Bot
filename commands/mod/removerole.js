@@ -1,6 +1,6 @@
 const { Command } = require('discord.js-commando');
 
-module.exports = class UserInfoCommand extends Command {
+module.exports = class RemoveRoleCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'removerole',
@@ -29,11 +29,13 @@ module.exports = class UserInfoCommand extends Command {
 		return msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS');
 	}
 
-	async run(message, args) {
-		let botMember = await message.guild.fetchMember(message.client.user);
-		if (!botMember.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return message.reply('I do not have the `manage roles` permission.');
-		// let role = message.guild.roles.filter(r => r.name.toLowerCase() === args.role.toLowerCase()).first();
-		await args.member.removeRole(args.role.name);
-		return message.reply(`I have removed ${args.role.name} from ${args.member.user.username}.`);
+	async run(msg, args) {
+		const member = args.member;
+		const user = member.user;
+		const role = args.role;
+		if (!this.client.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return msg.reply('I do not have the `manage roles` permission.');
+		// const role = message.guild.roles.filter(ro => ro.name.toLowerCase() === role.toLowerCase()).first();
+		await member.removeRole(args.role.name);
+		return msg.reply(`I have removed ${role.name} from ${user.username}.`);
 	}
 };

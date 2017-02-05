@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class AddReactFlairCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'addreactflair',
@@ -25,13 +25,15 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'reactionflairs', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'reactionflairs', {});
 		settings[args.role.id] = args.emoji.id ? args.emoji.id : args.emoji;
-		this.client.provider.set(message.guild.id, 'reactionflairs', settings);
-		return message.reply(`I have successfully added ${args.role.name} and ${args.emoji} to the list of self-assignable roles by reactions.`);
+		this.client.provider.set(msg.guild.id, 'reactionflairs', settings);
+		return msg.reply(`I have successfully added ${args.role.name} and ${args.emoji} to the list of self-assignable roles by reactions.`);
 	}
 };

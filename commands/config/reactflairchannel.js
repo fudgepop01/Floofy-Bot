@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class ReactFlairChannelCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'reactflairchannel',
@@ -20,13 +20,15 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'reactionflairs', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'reactionflairs', {});
 		settings.channel = args.channel.id;
-		this.client.provider.set(message.guild.id, 'reactionflairs', settings);
-		return message.reply(`I have successfully set ${args.channel} as the channel for automatic role assignment by reactions.`);
+		this.client.provider.set(msg.guild.id, 'reactionflairs', settings);
+		return msg.reply(`I have successfully set ${args.channel} as the channel for automatic role assignment by reactions.`);
 	}
 };

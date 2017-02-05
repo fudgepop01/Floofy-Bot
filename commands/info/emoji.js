@@ -1,7 +1,6 @@
 const { Command } = require('discord.js-commando');
-const stripIndents = require('common-tags').oneLine;
 
-module.exports = class EmojiInfo extends Command {
+module.exports = class EmojiInfoCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'emoji-info',
@@ -22,29 +21,28 @@ module.exports = class EmojiInfo extends Command {
 		});
 	}
 
-	async run(message, args) {
-		let info = {};
+	async run(msg, args) {
+		const info = {};
 		if (args.emoji.id) {
 			if (!args.emoji.id) info.server = 'unknown';
-			else info.server = `${args.emoji.guild.name} (${args.emoji.guild.id})`;
+			info.server = `${args.emoji.guild.name} (${args.emoji.guild.id})`;
 			info.url = `https://cdn.discordapp.com/emojis/${args.emoji.id}.png`;
 			info.name = args.emoji.name;
 			info.id = args.emoji.id;
 		}
-		else {
-			info.emoji = `${String.fromCodePoint(args.emoji.codePointAt(0))}\`${args.emoji}\``;
-			info.codePoint = args.emoji.codePointAt(0);
-			info.hex = info.codePoint.toString(16);
-			info.usage = `\`\\u{${info.hex}}\``;
-		}
+
+		info.emoji = `${String.fromCodePoint(args.emoji.codePointAt(0))}\`${args.emoji}\``;
+		info.codePoint = args.emoji.codePointAt(0);
+		info.hex = info.codePoint.toString(16);
+		info.usage = `\`\\u{${info.hex}}\``;
 		let out = '__**Emoji Information**__\n';
 		for (let key in info) {
 			if (key !== 'url') out += `**${key.charAt(0).toUpperCase()+key.substring(1)}**: ${info[key]}\n`;
 		}
-		return message.embed({
+		return msg.embed({
 			color: 3447003,
 			description: out,
-			image:  {url: (info.url) ? info.url : null}
-		})
+			image: { url: info.url ? info.url : null }
+		});
 	}
 };

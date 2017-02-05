@@ -1,7 +1,7 @@
 const commando = require('discord.js-commando');
 const CleverBot = require('cleverbot-node');
 
-module.exports = class Chat extends commando.Command {
+module.exports = class ShibeCommand extends commando.Command {
 	constructor(client) {
 		super(client, {
 			name: 'shibe',

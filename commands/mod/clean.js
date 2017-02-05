@@ -45,7 +45,6 @@ module.exports = class CleanCommand extends Command {
 	}
 
 	hasPermission(msg) {
-		// return msg.member.roles.exists('name', 'Server Staff');
 		return msg.member.hasPermission('MANAGE_MESSAGES');
 	}
 
@@ -59,30 +58,23 @@ module.exports = class CleanCommand extends Command {
 		if (filter) {
 			if (filter === 'invite') {
 				messageFilter = message => message.content.search(/(discord\.gg\/.+|discordapp\.com\/invite\/.+)/i) !== -1;
-			}
-			else if (filter === 'user') {
+			} else if (filter === 'user') {
 				if (args.member) {
 					const member = args.member;
 					const user = member.user;
 					messageFilter = message => message.author.id === user.id;
-				}
-				else {
+				} else {
 					return msg.say(`${msg.author}, you have to mention someone.`);
 				}
-			}
-			else if (filter === 'bots') {
+			} else if (filter === 'bots') {
 				messageFilter = message => message.author.bot;
-			}
-			else if (filter === 'you') {
+			} else if (filter === 'you') {
 				messageFilter = message => message.author.id === message.client.user.id;
-			}
-			else if (filter === 'upload') {
+			} else if (filter === 'upload') {
 				messageFilter = message => message.attachments.size !== 0;
-			}
-			else if (filter === 'links') {
+			} else if (filter === 'links') {
 				messageFilter = message => message.content.search(/https?:\/\/[^ \/\.]+\.[^ \/\.]+/) !== -1; // eslint-disable-line no-useless-escape
-			}
-			else {
+			} else {
 				return msg.say(`${msg.author}, this is not a valid filter. \`help clean\` for all available filters.`);
 			}
 		}
@@ -91,8 +83,7 @@ module.exports = class CleanCommand extends Command {
 			const messagesToDelete = await msg.channel.fetchMessages({ limit: limit });
 
 			msg.channel.bulkDelete(messagesToDelete.array().reverse());
-		}
-		else {
+		} else {
 			const messages = await msg.channel.fetchMessages({ limit: limit });
 			const messagesToDelete = messages.filter(messageFilter);
 

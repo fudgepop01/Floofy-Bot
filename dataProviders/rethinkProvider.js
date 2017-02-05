@@ -16,15 +16,17 @@ const Settings = require('./rethonk');
 
 class RethinkProvider {
 	constructor(bot) {
-		this.r = rethink;
+		this.rethink = rethink;
 		this.bot = bot;
 	}
+
 	initGuild(guild) {
 		const setting = new Settings(this, guild);
 		return setting.newGuildConf().then((res) => {
 			this.bot.guildSettings.set(guild.id, res);
 		}).catch(err => console.error(err));
 	}
+
 	initGuilds() {
 		this.bot.guilds.forEach(guild => {
 			this.initGuild(guild);

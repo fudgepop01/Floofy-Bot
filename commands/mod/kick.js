@@ -1,6 +1,6 @@
 const { Command } = require('discord.js-commando');
 
-module.exports = class UserInfoCommand extends Command {
+module.exports = class KickUserCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'kick',
@@ -24,12 +24,12 @@ module.exports = class UserInfoCommand extends Command {
 		return msg.member.hasPermission('KICK_MEMBERS');
 	}
 
-	async run(message, args) {
-		let botMember = await message.guild.fetchMember(message.client.user);
-		if (!botMember.hasPermission('KICK_MEMBERS')) return message.reply('I do not have the `kick members` permission.');
-		args.member.kick()
-    .then(() => message.channel.send(`${args.member.user.username}#${args.member.user.discriminator} was kicked.`))
-    .catch(e => message.reply(`There was an error trying to kick: ${e}`));
+	async run(msg, args) {
+		const member = args.member;
+		if (!this.client.hasPermission('KICK_MEMBERS')) return msg.reply('I do not have the `kick members` permission.');
+		return member.kick()
+			.then(() => msg.say(`${args.member.user.username}#${args.member.user.discriminator} was kicked.`))
+			.catch(error => msg.reply(`There was an error trying to kick: ${error}`));
 	}
 	// go to mod logs
 };

@@ -1,7 +1,7 @@
 const { Command } = require('discord.js-commando');
 const childProcess = require('child_process');
 
-module.exports = class LaunchCybernukeCommand extends Command {
+module.exports = class ExecuteCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'exec',
@@ -25,10 +25,10 @@ module.exports = class LaunchCybernukeCommand extends Command {
 		return this.client.options.owner === msg.author.id;
 	}
 
-	async run(message, args) {
+	async run(msg, args) {
 		childProcess.exec(args.code, { shell: '/bin/bash' }, (err, stdout, stderr) => {
-			if (err) return message.channel.sendCode('', err.message);
-			return message.channel.send(stdout, { code: true });
+			if (err) return msg.code('', err.message);
+			return msg.code('', stdout);
 		});
 	}
 };

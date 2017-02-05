@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class AddFlairCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'addflair',
@@ -20,13 +20,15 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'imroles', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'imroles', {});
 		settings.push(args.role);
-		this.client.provider.set(message.guild.id, 'imroles', settings);
-		return message.reply(`The word \`${args.role.name}\` has been successfully added to the list of self-assignable roles!`);
+		this.client.provider.set(msg.guild.id, 'imroles', settings);
+		return msg.reply(`The word \`${args.role.name}\` has been successfully added to the list of self-assignable roles!`);
 	}
 };

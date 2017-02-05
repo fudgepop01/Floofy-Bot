@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class ReactFlairHelpCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'reactflairhelp',
@@ -9,8 +9,9 @@ module.exports = class Distance extends commando.Command {
 			description: 'Details on how to set up self-assignable roles by reactions.'
 		});
 	}
-	async run(message) {
-		return message.embed({
+
+	async run(msg) {
+		return msg.embed({
 			color: parseInt('cc0000', 16),
 			title: 'How to set up self-flairing by Reactions for your server!',
 			fields: [

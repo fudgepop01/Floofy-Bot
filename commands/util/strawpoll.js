@@ -4,7 +4,7 @@ const stripIndents = require('common-tags').stripIndents;
 
 const version = require('../../package').version;
 
-module.exports = class FortuneCommand extends Command {
+module.exports = class StrawpollCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'strawpoll',
@@ -65,7 +65,7 @@ module.exports = class FortuneCommand extends Command {
 			method: 'POST',
 			uri: `https://strawpoll.me/api/v2/polls`,
 			followAllRedirects: true,
-			headers: { 'User-Agent': `Commando v${version} (https://github.com/WeebDev/Commando/)` },
+			headers: { 'User-Agent': `FloofyBot v${version} (https://github.com/Lewdcario/Floofy-Bot)` },
 			body: {
 				title: title,
 				options: options,

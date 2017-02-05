@@ -1,7 +1,9 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 const request = require('superagent');
 
-module.exports = class Chat extends commando.Command {
+const config = require('../../settings');
+
+module.exports = class YouTubeImageCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'ytimage',
@@ -24,26 +26,25 @@ module.exports = class Chat extends commando.Command {
 		});
 	}
 
-	async run(message, args) {
-	  // var param = "/search?part=snippet&order=viewCount";
-	  // var param = "/search?part=snippet&order=relevance&type=video&videoCategory=Gaming";
-	  var param = '/search?part=snippet&safeSearch=strict';
-	  let link = `https://www.googleapis.com/youtube/v3${param}&q=${args.query}&key=${config.ytimage}`;
-	  let str = 'No result.';
-	  request('GET', link).type('application/json').end((err, res) => {
-	    if (err) { return message.channel.send('There was an error retrieveing your post. This is likely due to a daily limit being reached on the API.'); }
-	    else {
-	      let body = JSON.parse(res.text);
-	      if (body.kind === 'youtube#searchListResponse') {
-	        for (var i = 0; i < body.items.length; i++) {
-	          str = body.items[i].snippet.thumbnails.high.url;
-	        }
-	        return message.channel.sendMessage(str);
-	      }
-	      else {
-	        return message.channel.sendMessage('No result!');
-	      }
-	    }
-	  });
+	async run(msg, args) {
+		// const param = "/search?part=snippet&order=viewCount";
+		// const param = "/search?part=snippet&order=relevance&type=video&videoCategory=Gaming";
+		const param = '/search?part=snippet&safeSearch=strict';
+		const link = `https://www.googleapis.com/youtube/v3${param}&q=${args.query}&key=${config.ytimage}`;
+		let str = 'No result.';
+		request.get(link)
+		.set('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+		.set('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36')
+		.end((error, res) => {
+			if (error) return msg.say('There was an error retrieveing your post. This is likely due to a daily limit being reached on the API.');
+			const body = JSON.parse(res.text);
+			if (body.kind === 'youtube#searchListResponse') {
+				for (let i = 0; i < body.items.length; i++) {
+					str = body.items[i].snippet.thumbnails.high.url;
+				}
+				return msg.say(str);
+			}
+			return msg.say(str);
+		});
 	}
 };

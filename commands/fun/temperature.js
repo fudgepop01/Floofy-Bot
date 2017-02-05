@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class TemperatureCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'temperature',
@@ -26,16 +26,17 @@ module.exports = class Distance extends commando.Command {
 		});
 	}
 
-	async run(message, args) {
-		if (args.unit === 'c' || args.unit === 'celsius') {
-			let newtemp = args.temperature * 9 / 5 + 32;
-			return message.channel.sendMessage(`${Math.round(newtemp * 100) / 100} Degrees Fahrenheit`);
+	async run(msg, args) {
+		const temp = args.temperature;
+		const unit = args.unit;
+		if ((unit === 'c') || (unit === 'celsius')) {
+			const newtemp = ((temp * 9) / 5) + 32;
+			return msg.say(`${Math.round(newtemp * 100) / 100} Degrees Fahrenheit`);
 		}
-		else if (args.unit === 'f' || args.unit === 'fahrenheit') {
-			let newtemp = (args.temperature - 32) * 5 / 9;
-			return message.channel.sendMessage(`${Math.round(newtemp * 100) / 100} Degrees Celsius`);
+		if (args.unit === 'f' || args.unit === 'fahrenheit') {
+			const newtemp = (temp - 32) * 5 / 9;
+			return msg.say(`${Math.round(newtemp * 100) / 100} Degrees Celsius`);
 		}
-		else {
-			return message.channel.send('Please provide either C or F for me to convert.'); }
+		return msg.say('Please provide either C or F for me to convert.');
 	}
 };

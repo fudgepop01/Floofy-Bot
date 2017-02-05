@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class DeleteCommandCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'deletecommand',
@@ -21,14 +21,16 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'customcommands', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
 		if (!args.name.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
 		settings.splice(settings.indexOf(args.name));
-		this.client.provider.set(message.guild.id, 'customcommands', settings);
-		return message.reply(`The command \`${args.name}\` has been successfully removed.`);
+		this.client.provider.set(msg.guild.id, 'customcommands', settings);
+		return msg.reply(`The command \`${args.name}\` has been successfully removed.`);
 	}
 };

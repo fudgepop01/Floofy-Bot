@@ -1,6 +1,23 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
+const { stripIdents } = require('common-tags');
 
-module.exports = class EightBall extends commando.Command {
+const responses = [
+	'Nope',
+	'I don\'t know, m8',
+	'Hell naw',
+	'Most likely',
+	'Without a doubt!\u2764\uFE0F',
+	'Yes, definitely! \uD83D\uDE04',
+	'Most likely!',
+	'Doubtful...',
+	'YES YES YES!',
+	'In your dreams!',
+	'You already know the answer to that...',
+	'Oh god, no.',
+	'If that\'s what you want...'
+];
+
+module.exports = class EightBallCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: '8ball',
@@ -20,8 +37,10 @@ module.exports = class EightBall extends commando.Command {
 		});
 	}
 
-	async run(message, args) {
-		const responses = ['Nope', "I don't know, m8", 'Hell naw', 'Most likely', 'Without a doubt! \u2764\uFE0F', 'Yes, definitely! \uD83D\uDE04', 'Most likely!', 'Doubtful...', 'YES YES YES!', 'In your dreams!', 'You already know the answer to that...', 'Oh god, no.', "If that's what you want..."];
-		return message.channel.send(`\uD83C\uDFB1${message.author} asked \`${args.question}\`\nResponse: ${responses[Math.floor(Math.random() * responses.length)]}`);
+	async run(msg, args) {
+		return msg.say(stripIdents`
+			🎱 ${msg.author} asked \`${args.question}\`
+			Response: ${responses[Math.floor(Math.random() * responses.length)]}
+		`);
 	}
 };

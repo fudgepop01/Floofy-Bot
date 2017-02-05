@@ -1,8 +1,9 @@
-const commando = require('discord.js-commando');
-const oneLine = require('common-tags').oneLine;
+const { Command } = require('discord.js-commando');
+const { oneLine } = require('common-tags');
+
 // const Settings = require('../../dataProviders/rethonk');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class CreateCommandCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'createcommand',
@@ -36,11 +37,12 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-/*
-	async run(message, args) {
+
+	/* async run(message, args) {
 		// eventually remove all , so people can pick their own custom cmd prefix
 		if (!args.response.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
 		let settings = message.client.guildSettings.get(message.guild.id);
@@ -49,8 +51,7 @@ module.exports = class Distance extends commando.Command {
 		cmd[args.name] = args.response;
 		return message.reply(`A command \`${args.name}\` has been successfully created.`);
 	}
-	*/
-	/*
+
 	async run(message, args) {
 	// theory is redeclaring Settings is caushing the connection issues. try this.client.database for methods
 		let settings = new Settings(message.client.database, message.guild);
@@ -60,12 +61,13 @@ module.exports = class Distance extends commando.Command {
 		this.client.database.r.getPoolMaster().drain();
 	}
 	*/
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'customcommands', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
 		if (!args.name.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
 		settings[args.name] = args.response;
-		this.client.provider.set(message.guild.id, 'customcommands', settings);
-		return message.reply(`A command \`${args.name}\` has been successfully created.`);
+		this.client.provider.set(msg.guild.id, 'customcommands', settings);
+		return msg.reply(`A command \`${args.name}\` has been successfully created.`);
 		// this.client.provider.get(message.guild.id, 'customcommands', {}) outputs => { ',test': 'value' }
 	}
 };

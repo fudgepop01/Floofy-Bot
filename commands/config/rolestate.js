@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class RoleStateCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'rolestate',
@@ -11,13 +11,15 @@ module.exports = class Distance extends commando.Command {
 			guildOnly: true
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message) {
-		let settings = this.client.provider.get(message.guild, 'filter', { users: [] });
-		settings.enabled ? settings.enabled = false : settings.enabled = true;
-		this.client.provider.set(message.guild.id, 'filter', settings);
-		return message.reply(`Rolestate has been successfully ${settings.enabled ? 'enabled' : 'disabled'}!`);
+
+	async run(msg) {
+		const settings = this.client.provider.get(msg.guild, 'filter', { users: [] });
+		settings.enabled ? settings.enabled = false : settings.enabled = true; // eslint-disable-line no-unused-expressions
+		this.client.provider.set(msg.guild.id, 'filter', settings);
+		return msg.reply(`Rolestate has been successfully ${settings.enabled ? 'enabled' : 'disabled'}!`);
 	}
 };

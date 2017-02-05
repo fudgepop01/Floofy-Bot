@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class WelcomeHelpCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'welcomehelp',
@@ -9,8 +9,9 @@ module.exports = class Distance extends commando.Command {
 			description: 'Details on how to set up welcome messages'
 		});
 	}
-	async run(message) {
-		return message.embed({
+
+	async run(msg) {
+		return msg.embed({
 			color: parseInt('cc0000', 16),
 			title: 'How to set up welcome messages for your server!',
 			fields: [

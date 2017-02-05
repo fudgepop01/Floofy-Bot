@@ -1,7 +1,7 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 const CleverBot = require('cleverbot-node');
 
-module.exports = class Chat extends commando.Command {
+module.exports = class ChatCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'chat',
@@ -21,14 +21,14 @@ module.exports = class Chat extends commando.Command {
 		});
 	}
 
-	async run(message, args) {
-		let cb = new CleverBot;
+	async run(msg, args) {
+		const cb = new CleverBot;
 		CleverBot.prepare(() => {
 			cb.write(args.query, (response) => {
-				message.channel.startTyping();
+				msg.channel.startTyping();
 				setTimeout(() => {
-					message.channel.sendMessage(`\uD83D\uDCAC ${response.message}`);
-					message.channel.stopTyping(true);
+					msg.say(`\uD83D\uDCAC ${response.message}`);
+					msg.channel.stopTyping(true);
 				}, response.message.length * 100);
 			});
 		});

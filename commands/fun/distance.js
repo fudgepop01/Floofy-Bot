@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class DistanceCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'distance',
@@ -26,9 +26,10 @@ module.exports = class Distance extends commando.Command {
 		});
 	}
 
-	async run(message, args) {
-		if (args.unit === 'mi') return message.channel.sendMessage(`${Math.round((args.distance * 1.609) * 100) / 100} kilometers`);
-		else if (args.unit === 'km')	return message.channel.sendMessage(`${Math.round((args.distance * 0.62137119) * 100) / 100} miles`);
-		else return message.channel.send('Please provide either km or mi for me to convert!');
+	async run(msg, args) {
+		const unit = args.unit;
+		if (unit === 'mi') return msg.say(`${Math.round((args.distance * 1.609) * 100) / 100} kilometers`);
+		if (unit === 'km')	return msg.say(`${Math.round((args.distance * 0.62137119) * 100) / 100} miles`);
+		return msg.say('Please provide either km or mi for me to convert!');
 	}
 };

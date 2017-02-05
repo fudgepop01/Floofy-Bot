@@ -1,7 +1,8 @@
-const commando = require('discord.js-commando');
-const CleverBot = require('cleverbot-node');
+const { Command } = require('discord.js-commando');
+const request = require('superagent');
+const htmlToJSON = require('htm-to-json').convert_html_to_json;
 
-module.exports = class Chat extends commando.Command {
+module.exports = class DogCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'dog',
@@ -11,16 +12,17 @@ module.exports = class Chat extends commando.Command {
 		});
 	}
 
-	async run(message) {
-		let link = 'http://random.dog/';
-		require('superagent')('GET', link).end((err, res) => {
-			if (err) { message.channel.sendMessage('There was an error, please try again!'); }
-			else {
-				require('htm-to-json').convert_html_to_json(res.text, (err, data) => {
-					if (err) return message.channel.sendMessage('There was an error, please try again!');
-					else return message.channel.sendMessage(link + data.img[0].src);
-				});
-			}
+	async run(msg) {
+		const link = 'http://random.dog/';
+		request.get(link)
+		.set('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+		.set('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36')
+		.end((error, res) => {
+			if (error) return msg.say('There was an error, please try again!');
+			return htmlToJSON(res.text, (err, data) => {
+				if (err) return msg.say('There was an error, please try again!');
+				return msg.say(link + data.img[0].src);
+			});
 		});
 	}
 };

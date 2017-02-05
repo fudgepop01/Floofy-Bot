@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Distance extends commando.Command {
+module.exports = class RemoveFlairCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'removeflair',
@@ -20,13 +20,15 @@ module.exports = class Distance extends commando.Command {
 			]
 		});
 	}
+
 	hasPermission(msg) {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
-	async run(message, args) {
-		let settings = this.client.provider.get(message.guild, 'imroles', {});
+
+	async run(msg, args) {
+		const settings = this.client.provider.get(msg.guild, 'imroles', {});
 		settings.splice(settings.indexOf(args.name));
-		this.client.provider.set(message.guild.id, 'imroles', settings);
-		return message.reply(`The word \`${args.role.name}\` has been successfully removed from the list of self-assignable roles!`);
+		this.client.provider.set(msg.guild.id, 'imroles', settings);
+		return msg.reply(`The word \`${args.role.name}\` has been successfully removed from the list of self-assignable roles!`);
 	}
 };

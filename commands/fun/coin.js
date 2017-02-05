@@ -1,6 +1,6 @@
-const commando = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
-module.exports = class Coin extends commando.Command {
+module.exports = class CoinFlipCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'coin',
@@ -12,9 +12,9 @@ module.exports = class Coin extends commando.Command {
 		});
 	}
 
-	async run(message) {
-		let res = `${Math.random() < 0.5 ? 'tails' : 'heads'}`;
-		await message.channel.send(`${message.author} threw a coin: **${res}**!`);
-		message.channel.sendFile(require('path').join(__dirname, `../../assets/coin/${res}r.png`));
+	async run(msg) {
+		const res = `${Math.random() < 0.5 ? 'tails' : 'heads'}`;
+		await msg.say(`${msg.author} threw a coin: **${res}**!`);
+		msg.channel.sendFile(require('path').join(__dirname, `../../assets/coin/${res}r.png`));
 	}
 };

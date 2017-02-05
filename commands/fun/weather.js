@@ -47,7 +47,7 @@ module.exports = class WeatherCommand extends Command {
 
 		const response = await request({
 			uri: `https://maps.googleapis.com/maps/api/geocode/json?address=${locationURI}&key=${config.GoogleAPIKey}`,
-			headers: { 'User-Agent': `Floofy Bot v${version} (https://github.com/Lewdcario/Floofy-Bot/)` },
+			headers: { 'User-Agent': `FloofyBot v${version} (https://github.com/Lewdcario/Floofy-Bot/)` },
 			json: true
 		});
 
@@ -71,7 +71,7 @@ module.exports = class WeatherCommand extends Command {
 
 		const res = await request({
 			uri: `https://api.darksky.net/forecast/${wAPIKey}/${params}?exclude=minutely,hourly,flags&units=auto`,
-			headers: { 'User-Agent': `Commando v${version} (https://github.com/WeebDev/Commando/)` },
+			headers: { 'User-Agent': `FloofyBot v${version} (https://github.com/Lewdcario/Floofy-Bot/)` },
 			json: true
 		});
 
