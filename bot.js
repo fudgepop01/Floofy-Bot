@@ -51,7 +51,8 @@ client.dispatcher.addInhibitor(msg => {
 });
 
 client.dispatcher.addInhibitor(msg => {
-	return client.funcs.hasFilteredWord(msg.content);
+	const { words } = msg.client.provider.get(msg.guild, 'filter', {});
+	return client.funcs.hasFilteredWord(words, msg.content);
 });
 
 
@@ -70,6 +71,7 @@ client
 		*/
 		loadFunctions(client).then(() => {
 			client.methods = {};
+			client.methods.Collection = Discord.Collection;
 			client.methods.Embed = Discord.RichEmbed;
 			loadEvents(client);
 		});

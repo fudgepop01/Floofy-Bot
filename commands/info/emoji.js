@@ -29,15 +29,15 @@ module.exports = class EmojiInfoCommand extends Command {
 			info.url = `https://cdn.discordapp.com/emojis/${args.emoji.id}.png`;
 			info.name = args.emoji.name;
 			info.id = args.emoji.id;
+		}	else {
+			info.emoji = `${String.fromCodePoint(args.emoji.codePointAt(0))}\`${args.emoji}\``;
+			info.codePoint = args.emoji.codePointAt(0);
+			info.hex = info.codePoint.toString(16);
+			info.usage = `\`\\u{${info.hex}}\``;
 		}
-
-		info.emoji = `${String.fromCodePoint(args.emoji.codePointAt(0))}\`${args.emoji}\``;
-		info.codePoint = args.emoji.codePointAt(0);
-		info.hex = info.codePoint.toString(16);
-		info.usage = `\`\\u{${info.hex}}\``;
 		let out = '__**Emoji Information**__\n';
 		for (let key in info) {
-			if (key !== 'url') out += `**${key.charAt(0).toUpperCase()+key.substring(1)}**: ${info[key]}\n`;
+			if (key !== 'url') out += `**${msg.client.funcs.toTitleCase(key)}**: ${info[key]}\n`;
 		}
 		return msg.embed({
 			color: 3447003,

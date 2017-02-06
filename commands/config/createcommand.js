@@ -42,26 +42,6 @@ module.exports = class CreateCommandCommand extends Command {
 		return msg.member.hasPermission('MANAGE_GUILD');
 	}
 
-	/* async run(message, args) {
-		// eventually remove all , so people can pick their own custom cmd prefix
-		if (!args.response.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
-		let settings = message.client.guildSettings.get(message.guild.id);
-		if (!settings.hasOwnProperty('customcommands')) settings.customcommands = {};
-		let cmd = settings.customcommands;
-		cmd[args.name] = args.response;
-		return message.reply(`A command \`${args.name}\` has been successfully created.`);
-	}
-
-	async run(message, args) {
-	// theory is redeclaring Settings is caushing the connection issues. try this.client.database for methods
-		let settings = new Settings(message.client.database, message.guild);
-		console.log(settings);
-		settings.get(message.guild).then(r => console.log(r));
-		settings.set('customcommands', {}).then(r => console.log(r));
-		this.client.database.r.getPoolMaster().drain();
-	}
-	*/
-
 	async run(msg, args) {
 		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
 		if (!args.name.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');

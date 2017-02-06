@@ -27,7 +27,8 @@ module.exports = class AddFilterCommand extends Command {
 
 	async run(msg, args) {
 		const settings = this.client.provider.get(msg.guild, 'filter', {});
-		settings.push(args.word);
+		if (!settings.words) settings.words = [];
+		settings.words.push(args.word);
 		this.client.provider.set(msg.guild.id, 'filter', settings);
 		return msg.reply(`The word \`${args.word}\` has been successfully added to the list of blacklisted words.`);
 	}

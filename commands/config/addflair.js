@@ -29,6 +29,6 @@ module.exports = class AddFlairCommand extends Command {
 		const settings = this.client.provider.get(msg.guild, 'imroles', {});
 		settings.push(args.role);
 		this.client.provider.set(msg.guild.id, 'imroles', settings);
-		return msg.reply(`The word \`${args.role.name}\` has been successfully added to the list of self-assignable roles!`);
+		return msg.reply(`The role \`${args.role.name}\` has been successfully added to the list of self-assignable roles!`);
 	}
 };
