@@ -7,7 +7,7 @@ module.exports = class LaunchCybernukeCommand extends Command {
 		super(client, {
 			name: 'launch-cybernuke',
 			aliases: ['cybernuke'],
-			group: 'util',
+			group: 'mod',
 			memberName: 'cybernuke',
 			description: 'Bans all members that have joined recently, with new accounts.',
 			guildOnly: true,

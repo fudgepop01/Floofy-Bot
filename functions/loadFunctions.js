@@ -15,13 +15,11 @@ const loadFunctions = (client, baseDir, counts) => new Promise((resolve, reject)
 			const file = f.split('.');
 			if (file[0] === 'loadFunctions') return;
 			client.funcs[file[0]] = require(`${dir}/${f}`);
-			if (client.funcs[file[0]].init)
-				client.funcs[file[0]].init(client);
+			if (client.funcs[file[0]].init)				{ client.funcs[file[0]].init(client); }
 			c++;
 		});
 		resolve(c);
-	}
-	catch (e) {
+	}	catch (e) {
 		if (e.code === 'MODULE_NOT_FOUND') {
 			const module = /'[^']+'/g.exec(e.toString());
 			client.funcs.installNPM(module[0].slice(1, -1)).then(() => {
@@ -30,8 +28,7 @@ const loadFunctions = (client, baseDir, counts) => new Promise((resolve, reject)
 				console.error(error);
 				process.exit();
 			});
-		}
-		else reject(e);
+		}		else { reject(e); }
 	}
 }).catch(err => client.funcs.log(err, 'error'));
 }).catch(err => client.funcs.log(err, 'error'));
@@ -39,7 +36,7 @@ const loadFunctions = (client, baseDir, counts) => new Promise((resolve, reject)
 
 module.exports = client => new Promise((resolve, reject) => {
 	const count = 0;
-	if (client.coreBaseDir !== client.clientBaseDir)
+	if (client.coreBaseDir !== client.clientBaseDir)		{
 		loadFunctions(client, client.coreBaseDir, count).then((counts) => {
 			loadFunctions(client, client.clientBaseDir, counts).then((countss) => {
 				const c = countss;
@@ -47,9 +44,11 @@ module.exports = client => new Promise((resolve, reject) => {
 				resolve();
 			});
 		}).catch(reject);
-	else loadFunctions(client, client.coreBaseDir, count).then((counts) => {
-		const c = counts;
-		client.funcs.log(`Loaded ${c} functions.`);
-		resolve();
-	}).catch(reject);
+	}	else {
+		loadFunctions(client, client.coreBaseDir, count).then((counts) => {
+			const c = counts;
+			client.funcs.log(`Loaded ${c} functions.`);
+			resolve();
+		}).catch(reject);
+	}
 });

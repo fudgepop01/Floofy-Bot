@@ -30,7 +30,7 @@ exports.run = (bot, member) => {
 		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message)	member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
 
 		if (welcome.public && welcome.public.enabled === true && welcome.public.message) {
-			if (welcome.public.channel && member.guild.channels.get(welcome.public.channel)) member.guild.channels.get(welcome.public.channel).sendMessage(welcome.public.message.replace(/\[user\]/g, member));
+			if (welcome.public.channel && member.guild.channels.get(welcome.public.channel)) member.guild.channels.get(welcome.public.channel).sendMessage(welcome.public.message.replace(/USER/g, member));
 			else member.guild.owner.sendMessage(`A new member joined in\`${member.guild.name}\`but a valid channel is not set! Please set a valid channel for welcome messages in\`${member.guild.name}\`!`);
 		}
 	}

@@ -28,8 +28,9 @@ module.exports = class DeleteCommandCommand extends Command {
 
 	async run(msg, args) {
 		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
-		if (!args.name.includes(', ')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
-		settings.splice(settings.indexOf(args.name));
+		if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
+		if (!settings[args.name]) return msg.reply(`The command \`${args.name}\` does not exist!`);
+		delete settings[args.name];
 		this.client.provider.set(msg.guild.id, 'customcommands', settings);
 		return msg.reply(`The command \`${args.name}\` has been successfully removed.`);
 	}

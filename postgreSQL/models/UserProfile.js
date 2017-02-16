@@ -33,6 +33,14 @@ let UserProfile = database.db.define('userProfiles', {
 	background: {
 		type: Sequelize.STRING,
 		defaultValue: 'default'
+	},
+	smashProfile: {
+		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		defaultValue: {}
+	},
+	infractions: {
+		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		defaultValue: {}
 	}
 });
 

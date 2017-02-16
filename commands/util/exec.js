@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const childProcess = require('child_process');
+const { exec } = require('child_process');
 
 module.exports = class ExecuteCommand extends Command {
 	constructor(client) {
@@ -26,7 +26,7 @@ module.exports = class ExecuteCommand extends Command {
 	}
 
 	async run(msg, args) {
-		childProcess.exec(args.code, { shell: '/bin/bash' }, (err, stdout, stderr) => {
+		exec(args.code, (err, stdout, stderr) => {
 			if (err) return msg.code('', err.message);
 			return msg.code('', stdout);
 		});

@@ -7,7 +7,7 @@ module.exports = class LogFieldToggleCommand extends Command {
 			name: 'logfield',
 			group: 'config',
 			memberName: 'logfield',
-			description: 'Adds an emoji and a role to the list of self-assignable roles by reactions.',
+			description: 'Enables or disables a field for logging.',
 			guildOnly: true,
 			examples: [
 				'logfield avatars disable'
@@ -18,10 +18,8 @@ module.exports = class LogFieldToggleCommand extends Command {
 					prompt: 'What field would you like to toggle?\n',
 					type: 'string',
 					validate: field => {
-						return fields.includes(field);
-					},
-					parse: field => {
-						return fields[field];
+						if (fields.includes(field)) return `Please input a valid field. The options are: ${fields.join(', ')}`;
+						return true;
 					}
 				},
 				{

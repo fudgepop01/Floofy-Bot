@@ -1,5 +1,5 @@
 exports.run = async (bot, oldmsg, newmsg) => {
-	if (!oldmsg.guild.available) return;
+	if (!oldmsg.guild || !oldmsg.guild.available) return;
 	const logs = bot.provider.get(newmsg.guild, 'logs');
 	if (logs && logs.enablede && logs.channel && logs.fields.messages !== false) {
 		if (oldmsg !== null && newmsg !== null && oldmsg.content !== newmsg.content) {

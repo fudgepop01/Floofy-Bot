@@ -1,6 +1,6 @@
 exports.run = (bot, message) => {
 	let input = message.content.toLowerCase();
-	let prefix = bot.config.prefix;
+	let prefix = bot.commandPrefix;
 	if (!input.startsWith(prefix) && !input.length <= 2) return;
 	let cmd = input.slice(1).split(' ')[0];
 
@@ -137,5 +137,28 @@ exports.run = (bot, message) => {
 		message.channel.sendMessage(`${items[Math.floor(Math.random() * items.length)]}`);
 	} else if (cmd === 'rekt') {
 		message.channel.sendFile('http://i.imgur.com/tc5RhwT.gifv');
+	} else {
+		const customcommands = bot.provider.get(message.guild, 'customcommands', {});
+		if (!customcommands) return;
+		let exists = true;
+		Object.keys(customcommands).forEach((name) => {
+			if (name === cmd || `,${cmd}` === name) {
+				if (customcommands[name].response.constructor === Array) {
+					var output = '';
+					var response = customcommands[name].response;
+					for (var i = 0; i < response.length; i++) {
+						if (i % 2 === 0) {
+							output += response[i];
+						} else if (i % 2 === 1) {
+							let outcomes = response[i].split(';');
+							output += outcomes[Math.floor(Math.random() * outcomes.length)].trim();
+						}
+					}
+					message.channel.sendMessage(output);
+				}	else { message.channel.sendMessage(customcommands[name].response); }
+				exists = true;
+			}
+		});
+		// if (!exists) message.channel.sendMessage(`Command \`${cmd}\` not found.`);
 	}
 };

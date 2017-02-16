@@ -29,7 +29,8 @@ const client = new commando.Client({
 	owner: config.owner,
 	commandPrefix: ',',
 	unknownCommandResponse: false,
-	disableEveryone: true
+	disableEveryone: true,
+	clientOptions: { shardCount: 'auto' }
 });
 
 client.coreBaseDir = `${__dirname}/`;
@@ -52,7 +53,7 @@ client.dispatcher.addInhibitor(msg => {
 
 client.dispatcher.addInhibitor(msg => {
 	const { words } = msg.client.provider.get(msg.guild, 'filter', {});
-	return client.funcs.hasFilteredWord(words, msg.content);
+	return client.funcs.hasFilteredWord(words, client.funcs.filterWord(msg.content));
 });
 
 
@@ -73,6 +74,9 @@ client
 			client.methods = {};
 			client.methods.Collection = Discord.Collection;
 			client.methods.Embed = Discord.RichEmbed;
+			// client.methods.superagent = require('superagent');
+			// String.prototype.capitalize = () => { return this.charAt(0).toUpperCase() + this.slice(1); };
+			// client.methods.request = Discord.Request;
 			loadEvents(client);
 		});
 		/*
@@ -88,7 +92,7 @@ client
 		*/
 		let servers = ` in ${client.guilds.size} servers!`;
 		let users = ` with ${client.users.size} users!`;
-		let games = [`type ${config.prefix}help for commands!`, 'with database testing...', servers, `type ${config.prefix}join to invite me!`, users];
+		let games = [`type ${client.commandPrefix}help for commands!`, 'with database testing...', servers, `type ${client.commandPrefix}join to invite me!`, users];
 		client.user.setGame(servers);
 		setInterval(() => {
 			servers = `in ${client.guilds.size} servers!`;
@@ -166,10 +170,13 @@ client.registry
 		['music', 'Music'],
 		['tags', 'Tags'],
 		['fun', 'Fun'],
+		['nsfw', 'NSFW'],
 		['test', 'Testing']
 	])
-	.registerDefaults()
+	// .registerDefaults()
+	.registerDefaultTypes()
 	.registerTypesIn(path.join(__dirname, 'types'))
-	.registerCommandsIn(path.join(__dirname, 'commands'));
+	.registerCommandsIn(path.join(__dirname, 'commands'))
+	.registerDefaultCommands({ eval_: false });
 
 client.login(config.token);
