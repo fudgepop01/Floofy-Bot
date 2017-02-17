@@ -14,9 +14,9 @@ const cron = require('node-schedule');
 const moment = require('moment-timezone');
 */
 
-const Database = require('./postgreSQL/PostgreSQL');
-const Redis = require('./redis/Redis');
-const SequelizeProvider = require('./postgreSQL/SequelizeProvider');
+const Database = require('./dataProviders/postgreSQL/PostgreSQL');
+const Redis = require('./dataProviders/redis/Redis');
+const SequelizeProvider = require('./dataProviders/postgreSQL/SequelizeProvider');
 const config = require('./settings');
 // const Thonk = require('./dataProviders/rethinkProvider');
 
@@ -53,7 +53,7 @@ client.dispatcher.addInhibitor(msg => {
 
 client.dispatcher.addInhibitor(msg => {
 	const { words } = msg.client.provider.get(msg.guild, 'filter', {});
-	return client.funcs.hasFilteredWord(words, client.funcs.filterWord(msg.content));
+	if (client.funcs.hasFilteredWord(words, client.funcs.filterWord(msg.content))) return `Filter detected!`;
 });
 
 

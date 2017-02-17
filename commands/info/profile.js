@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const UserProfile = require('../../postgreSQL/models/UserProfile');
+const UserProfile = require('../../dataProviders/postgreSQL/models/UserProfile');
 const { owner } = require('../../settings');
 
 module.exports = class ProfileCommand extends Command {

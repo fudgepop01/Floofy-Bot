@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const winston = require('winston');
 
-const db = require('../settings').db;
+const db = require('../../settings').db;
 
 class Database {
 	constructor() {

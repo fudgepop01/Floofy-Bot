@@ -44,7 +44,7 @@ module.exports = class WelcomeHelpCommand extends Command {
 				},
 				{
 					name: '**Step 7**: Friend Code',
-					value: 'Use this to set up your friend code for your profile!\nExample: `.sp fc `1234-5678-9101`.'
+					value: 'Use this to set up your friend code for your profile!\nExample: `.sp fc 1234-5678-9101`.'
 				},
 				{
 					name: '**Step 8**: Note',

@@ -1,6 +1,6 @@
 const { Command } = require('discord.js-commando');
 
-const UserProfile = require('../../postgreSQL/models/UserProfile');
+const UserProfile = require('../../dataProviders/postgreSQL/models/UserProfile');
 const games = ['64', 'Melee', 'Brawl', 'PM', 'Sm4sh', 'Splatoon'];
 const chars = ['Bayonetta', 'Bowser', 'Bowser Jr.', 'Captain Falcon', 'Charizard', 'Cloud', 'Corrin', 'Dark Pit', 'Diddy Kong', 'Donkey Kong', 'Dr. Mario', 'Duck Hunt', 'Falco', 'Fox', 'Ganondorf', 'Greninja', 'Ice Climbers', 'Ike', 'Ivysaur', 'Jigglypuff', 'King Dedede', 'Kirby', 'Link', 'Little Mac', 'Lucario', 'Lucas', 'Lucina', 'Luigi', 'Mario', 'Marth', 'Mega Man', 'Meta Knight', 'Mewtwo', 'Mii Brawler', 'Mii Gunner', 'Mii Swordfighter', 'Mr. Game & Watch', 'Ness', 'Olimar', 'Pac-Man', 'Palutena', 'Peach', 'Pichu', 'Pikachu', 'Pit', 'Pokemon Trainer', 'R.O.B', 'Robin', 'Rosalina & Luma', 'Roy', 'Ryu', 'Samus', 'Sheik', 'Shulk', 'Snake', 'Sonic', 'Squirtle', 'Toon Link', 'Villager', 'Wario', 'Wii Fit Trainer', 'Wolf', 'Yoshi', 'Young Link', 'Zelda', 'Zero Suit Samus', 'Random'];
 const fields = ['tag', 'games', 'mains', 'secondaries', 'pockets', 'nnid', 'fc', 'note', 'colour', 'imageurl'];
