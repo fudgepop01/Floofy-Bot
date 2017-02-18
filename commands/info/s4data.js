@@ -23,6 +23,7 @@ const charAliases = {
 	jigglypuff: ['jiggs', 'jigs', 'marshmallow', '39'],
 	'king dedede': ['d3', 'dedede', 'king d3'],
 	kirby: ['pink puffball'],
+	'toon link': ['tink'],
 	link: ['l@nk', 'lank'],
 	'Little Mac': ['lm'],
 	lucario: ['luc', '448'],
@@ -51,9 +52,7 @@ const charAliases = {
 	samus: ['intergalactic bounty hunter'],
 	sheik: [],
 	shulk: [],
-	snake: ['snek'],
 	sonic: ['2fast', 'you\re too slow'],
-	'toon link': [],
 	villager: ['killager'],
 	wario: [],
 	'wii fit trainer': ['wft'],
@@ -84,9 +83,10 @@ module.exports = class KHCommand extends Command {
 	}
 
 	async run(msg, args) { // eslint-disable-line consistent-return
-		const char = getAliasMatch(args.params, charAliases);
+		const char = getAliasMatch(args.params, charAliases).match;
+		const alias = getAliasMatch(args.params, charAliases).alias;
 		if (char === -1) return msg.reply('that character does not exist!');
-		const getMove = args.params.substring(args.params.indexOf(char) + char.length + 1);
+		const getMove = args.params.substring(args.params.indexOf(alias) + alias.length + 1);
 		if (getMove.length < 3 && getMove.length !== 0) return msg.reply('that move name is too short!');
 		const embed = new this.client.methods.Embed();
 		const url = 'http://api.kuroganehammer.com/api/characters/';
@@ -174,12 +174,11 @@ function startsWithAny(str, arr) {
 }
 function getAliasMatch(str, obj) {
 	for (let name in obj) {
-		if (str.includes(name)) { return name; }		else {
+		if (str.includes(name)) { return { match: name, alias: name }; } else {
 			let length = obj[name].length;
 			while (length--) {
 				if (str.includes(obj[name][length])) {
-					let match = name;
-					return match;
+					return { match: name, alias: obj[name][length] };
 				}
 			}
 		}
