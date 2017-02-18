@@ -51,12 +51,6 @@ client.dispatcher.addInhibitor(msg => {
 	return `User ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}) has been blacklisted.`;
 });
 
-client.dispatcher.addInhibitor(msg => {
-	const { words } = msg.client.provider.get(msg.guild, 'filter', {});
-	if (client.funcs.hasFilteredWord(words, client.funcs.filterWord(msg.content))) return `Filter detected!`;
-});
-
-
 client
 	.on('error', winston.error)
 	.on('warn', winston.warn)
@@ -75,7 +69,6 @@ client
 			client.methods.Collection = Discord.Collection;
 			client.methods.Embed = Discord.RichEmbed;
 			// client.methods.superagent = require('superagent');
-			// String.prototype.capitalize = () => { return this.charAt(0).toUpperCase() + this.slice(1); };
 			// client.methods.request = Discord.Request;
 			loadEvents(client);
 		});
@@ -108,8 +101,16 @@ client
 			${Object.values(args)[0] !== '' ? `>>> ${Object.values(args)}` : ''}
 		`);
 	})
-	.on('message', (message) => {
+	.on('message', async (message) => {
 		if (message.author.bot) return;
+
+		const { words } = message.client.provider.get(message.guild, 'filter', {});
+		if (!message.client.funcs.isStaff(message.member) && message.client.funcs.hasFilteredWord(words, message.client.funcs.filterWord(message.content))) {
+			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`)
+			await message.delete();
+			return;
+		}
+
 		if (earnedRecently.includes(message.author.id)) return;
 
 		const hasImageAttachment = message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/));

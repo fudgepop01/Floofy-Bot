@@ -1,7 +1,6 @@
 exports.run = (bot, message) => {
 	let input = message.content.toLowerCase();
-	let prefix = bot.commandPrefix;
-	if (!input.startsWith(prefix) && !input.length <= 2) return;
+	if (!input.startsWith(bot.commandPrefix) && !input.length <= 2) return;
 	let cmd = input.slice(1).split(' ')[0];
 
 	if (cmd === 'nicememe') {

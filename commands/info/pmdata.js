@@ -223,7 +223,7 @@ module.exports = class PMDataCommand extends Command {
 			name: 'pmdata',
 			group: 'info',
 			memberName: 'pmdata',
-			description: 'Provides info about characters (PM only so far)',
+			description: 'Provides info about characters from Project M',
 			examples: ['pmdata lucario', 'pmdata lucario bair'],
 
 			args: [

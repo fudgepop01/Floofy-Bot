@@ -67,12 +67,11 @@ const moves = ['jab', 'dash attack', 'fair', 'nair', 'bair', 'uair', 'dair', 'fs
 module.exports = class KHCommand extends Command {
 	constructor(client) {
 		super(client, {
-			name: 'kh',
+			name: 's4data',
 			group: 'info',
-			memberName: 'kh',
-			description: 'Provides info about characters (Sm4sh only so far)',
-			details: `Takes information from the kuroganehammer API.`,
-			examples: ['kh lucario', 'kh lucario bair'],
+			memberName: 's4data',
+			description: 'Provides info about characters in Sm4sh',
+			examples: ['s4data lucario', 's4data lucario bair'],
 
 			args: [
 				{
