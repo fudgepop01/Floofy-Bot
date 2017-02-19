@@ -26,10 +26,10 @@ module.exports = class RemoveFilterCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const { words } = this.client.provider.get(msg.guild, 'filter', {});
+		const words = msg.guild.settings.get('filter', []);
 		if (!words) return msg.reply('There are no filtered words.');
 		words.splice(words.indexOf(args.word));
-		this.client.provider.set(msg.guild.id, 'filter', words);
+		msg.guild.settings.set('filter', words);
 		return msg.reply(`The word \`${args.word}\` has been successfully whitelisted.`);
 	}
 };

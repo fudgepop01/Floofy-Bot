@@ -1,4 +1,5 @@
-exports.run = (bot, message) => {
+exports.run = async (bot, message) => {
+	// memes
 	let input = message.content.toLowerCase();
 	if (!input.startsWith(bot.commandPrefix) && !input.length <= 2) return;
 	let cmd = input.slice(1).split(' ')[0];

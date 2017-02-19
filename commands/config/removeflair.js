@@ -26,9 +26,10 @@ module.exports = class RemoveFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'imroles', {});
-		settings.splice(settings.indexOf(args.name));
-		this.client.provider.set(msg.guild.id, 'imroles', settings);
-		return msg.reply(`The word \`${args.role.name}\` has been successfully removed from the list of self-assignable roles!`);
+		const settings = msg.guild.settings.get('imroles', {});
+		if (!settings.roles.includes(args.role.id)) return msg.reply(`${args.role.name} is not in the list of self-assignable roles.`);
+		settings.roles.splice(settings.roles.indexOf(args.role.id));
+		msg.guild.settings.set('imroles', settings);
+		return msg.reply(`The role \`${args.role.name}\` has been successfully removed from the list of self-assignable roles!`);
 	}
 };

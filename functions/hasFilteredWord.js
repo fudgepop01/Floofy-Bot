@@ -1,3 +1,3 @@
 module.exports = (filteredWords, str) => {
-	return filteredWords ? filteredWords.every(word => str.includes(word)) : false;
+	return filteredWords ? filteredWords.some(word => str.includes(word)) : false;
 };

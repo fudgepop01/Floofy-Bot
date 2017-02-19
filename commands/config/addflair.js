@@ -26,9 +26,11 @@ module.exports = class AddFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'imroles', {});
-		settings.push(args.role);
-		this.client.provider.set(msg.guild.id, 'imroles', settings);
+		const settings = msg.guild.settings.get('imroles', {});
+		if (!settings.roles) settings.roles = [];
+		if (settings.roles.includes(args.role.id)) return msg.reply(`${args.role.name} is already in the list of self-assignable roles.`);
+		settings.roles.push(args.role.id);
+		msg.guild.settings.set('imroles', settings);
 		return msg.reply(`The role \`${args.role.name}\` has been successfully added to the list of self-assignable roles!`);
 	}
 };

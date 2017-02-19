@@ -381,4 +381,6 @@ function round(num, places) {
 	var multiplier = Math.pow(10, places);
 	return Math.round(num * multiplier) / multiplier;
 }
-String.prototype.capitalize = function() { return this.charAt(0).toUpperCase() + this.slice(1); };
+String.prototype.capitalize = function() {
+	return this.replace(/\w\S*/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+};

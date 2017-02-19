@@ -174,12 +174,11 @@ function startsWithAny(str, arr) {
 }
 function getAliasMatch(str, obj) {
 	for (let name in obj) {
-		if (str.includes(name)) { return { match:name, alias:name }; } else {
+		if (str.includes(name)) { return { match: name, alias: name }; } else {
 			let length = obj[name].length;
 			while (length--) {
 				if (str.includes(obj[name][length])) {
-					let match = name;
-					return { match:name, alias:obj[name][length] };
+					return { match: name, alias: obj[name][length] };
 				}
 			}
 		}

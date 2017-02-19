@@ -3,6 +3,7 @@ global.Promise = require('bluebird');
 const commando = require('discord.js-commando');
 const Discord = require('discord.js');
 const Currency = require('./currency/Currency');
+const Experience = require('./currency/Experience');
 const { oneLine } = require('common-tags');
 const path = require('path');
 const Raven = require('raven');
@@ -18,7 +19,7 @@ const Database = require('./dataProviders/postgreSQL/PostgreSQL');
 const Redis = require('./dataProviders/redis/Redis');
 const SequelizeProvider = require('./dataProviders/postgreSQL/SequelizeProvider');
 const config = require('./settings');
-// const Thonk = require('./dataProviders/rethinkProvider');
+// const Thonk = require('./dataProviders/rethink/rethinkProvider');
 
 const loadEvents = require('./functions/loadEvents.js');
 const loadFunctions = require('./functions/loadFunctions.js');
@@ -37,6 +38,7 @@ client.coreBaseDir = `${__dirname}/`;
 client.clientBaseDir = `${process.cwd()}/`;
 
 let earnedRecently = [];
+let gainedXPRecently = [];
 
 Raven.config(config.ravenKey).install();
 
@@ -102,15 +104,16 @@ client
 		`);
 	})
 	.on('message', async (message) => {
-		if (message.author.bot) return;
-
-		const { words } = message.client.provider.get(message.guild, 'filter', {});
+		if (message.author.bot || !message.channel.type === 'dm') return;
+		const words = message.guild.settings.get('filter');
 		if (!message.client.funcs.isStaff(message.member) && message.client.funcs.hasFilteredWord(words, message.client.funcs.filterWord(message.content))) {
-			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`)
+			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);
 			await message.delete();
 			return;
 		}
 
+		const channelLocks = message.guild.settings.get('locks', []);
+		if (channelLocks.includes(message.channel.id)) return;
 		if (earnedRecently.includes(message.author.id)) return;
 
 		const hasImageAttachment = message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/));
@@ -123,6 +126,25 @@ client
 			const index = earnedRecently.indexOf(message.author.id);
 			earnedRecently.splice(index, 1);
 		}, 8000);
+
+		if (!gainedXPRecently.includes(message.author.id)) {
+			const xpEarned = Math.ceil(Math.random() * 9) + 3;
+			const oldLevel = await Experience.getLevel(message.author.id);
+			Experience.addExperience(message.author.id, xpEarned).then(async () => {
+				const newLevel = await Experience.getLevel(message.author.id);
+
+				if (newLevel > oldLevel) {
+					Currency._changeBalance(message.author.id, 100 * newLevel);
+					// check if server wants exp notifs, then announce
+				}
+			}).catch(winston.error);
+
+			gainedXPRecently.push(message.author.id);
+			setTimeout(() => {
+				const index = gainedXPRecently.indexOf(message.author.id);
+				gainedXPRecently.splice(index, 1);
+			}, 60 * 1000);
+		}
 	})
 	.on('commandError', (cmd, err) => {
 		if (err instanceof commando.FriendlyError) return;
