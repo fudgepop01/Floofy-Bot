@@ -2,6 +2,17 @@ const { Command } = require('discord.js-commando');
 const UserProfile = require('../../dataProviders/postgreSQL/models/UserProfile');
 const { owner } = require('../../settings');
 
+const fields = {
+	tag: 'Tag',
+	games: 'Games',
+	fc: 'Friend code',
+	nnid: 'NNID',
+	mains: 'Mains',
+	secondaries: 'Secondaries',
+	pockets: 'Pockets',
+	note: 'Note'
+};
+
 module.exports = class ProfileCommand extends Command {
 	constructor(client) {
 		super(client, {
@@ -42,15 +53,10 @@ module.exports = class ProfileCommand extends Command {
 		} else {
 			embed.setAuthor(`${args.user.username}'s Profile`, args.user.avatarURL);
 		}
-
-		if (profile.smashProfile.tag) embed.addField('Tag', profile.smashProfile.tag, true);
-		if (profile.smashProfile.games) embed.addField('Games', profile.smashProfile.games, true);
-		if (profile.smashProfile.fc) embed.addField('Friend Code', profile.smashProfile.fc, true);
-		if (profile.smashProfile.nnid) embed.addField('NNID', profile.smashProfile.nnid, true);
-		if (profile.smashProfile.mains) embed.addField('Mains', profile.smashProfile.mains, true);
-		if (profile.smashProfile.secondaries) embed.addField('Secondaries', profile.smashProfile.secondaries, true);
-		if (profile.smashProfile.pockets) embed.addField('Pockets', profile.smashProfile.pockets, true);
-		if (profile.smashProfile.note) embed.addField('Note', profile.smashProfile.note, true);
+		// thanks programmix <3
+		Object.keys(profile.smashProfile).forEach(key => {
+			if (profile.smashProfile[key] && fields[key]) embed.addField(fields[key], profile.smashProfile[key], true);
+		});
 		if (profile.smashProfile.colour) embed.setColor(profile.smashProfile.colour);
 		else embed.setColor(8323072);
 		if (profile.smashProfile.lastEdit) embed.setTimestamp(profile.smashProfile.lastEdit);

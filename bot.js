@@ -4,10 +4,11 @@ const commando = require('discord.js-commando');
 const Discord = require('discord.js');
 const Currency = require('./currency/Currency');
 const Experience = require('./currency/Experience');
-const { oneLine } = require('common-tags');
+const { oneLine, stripIndents } = require('common-tags');
 const path = require('path');
 const Raven = require('raven');
 const winston = require('winston');
+const moment = require('moment');
 /*
 const memwatch = require('memwatch-next');
 const heapdump = require('heapdump');
@@ -94,6 +95,17 @@ client
 			client.user.setGame(games[Math.floor(Math.random() * games.length)]);
 		}, Math.floor(Math.random() * (600000 - 120000 + 1)) + 120000);
 	})
+	.on('messageReactionAdd', (messageReaction, user) => {
+		if (messageReaction.emoji.name !== '⭐') return;
+		if (!messageReaction.message.guild.channels.exists('name', 'starboard')) return;
+		let image;
+		if (messageReaction.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = messageReaction.message.attachments.first().url;
+		messageReaction.message.guild.channels.find('name', 'starboard').send(stripIndents`
+			**Author**: \`${user.username} #${user.discriminator}\` | **Channel**: \`${messageReaction.message.channel.name}\` | **ID**: \`${messageReaction.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
+			**Message**:
+			${messageReaction.message.cleanContent} ${image ? image : ''}
+			`).catch(null);
+	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })
 	.on('commandRun', (cmd, promise, msg, args) => {
@@ -104,7 +116,7 @@ client
 		`);
 	})
 	.on('message', async (message) => {
-		if (message.author.bot || !message.channel.type === 'dm') return;
+		if (message.author.bot || message.channel.type === 'dm') return;
 		const words = message.guild.settings.get('filter');
 		if (!message.client.funcs.isStaff(message.member) && message.client.funcs.hasFilteredWord(words, message.client.funcs.filterWord(message.content))) {
 			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);

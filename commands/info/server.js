@@ -28,8 +28,11 @@ module.exports = class ServerInfoCommand extends Command {
 		embed.addField('❯ Owner', `${message.guild.owner.user.username}#${message.guild.owner.user.discriminator} (${message.guild.owner.id})`, true);
 		embed.addField('❯ Channels', message.guild.channels.size, true);
 		if (message.guild.roles.size >= 15) embed.addField('❯ Roles', message.guild.roles.size, true);
-		else embed.addField('❯ Roles', message.guild.roles.map(c => { if (c.name !== '@everyone') return c.name; }).join(', ').substring(2), true);
-		embed.addField('❯ Emojis', message.guild.emojis.map(c => c).join(' '), true);
+		else embed.addField('❯ Roles', message.guild.roles.map(role => role).join(' '), true);
+		if (message.guild.emojis.size > 25) {
+			embed.addField('❯ Emojis (1)', message.guild.emojis.map(emoji => emoji).slice(0, 25).join(' '));
+			embed.addField('❯ Emojis (2)', message.guild.emojis.map(emoji => emoji).slice(26).join(' '));
+		} else { embed.addField('❯ Emojis', message.guild.emojis.map(emoji => emoji).join(' '), true); }
 		embed.setFooter(this.client.user.username, this.client.user.avatarURL);
 		embed.setTimestamp();
 		let g = await message.guild.fetchMembers();

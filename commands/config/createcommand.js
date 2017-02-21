@@ -1,7 +1,6 @@
 const { Command } = require('discord.js-commando');
 const { oneLine } = require('common-tags');
-
-// const Settings = require('../../dataProviders/rethonk');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class CreateCommandCommand extends Command {
 	constructor(client) {
@@ -43,12 +42,16 @@ module.exports = class CreateCommandCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let customcommands = settings.customcommands;
 		if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
 		args.response = args.response.split('|');
-		settings[args.name] = {};
-		settings[args.name].response = args.response;
-		this.client.provider.set(msg.guild.id, 'customcommands', settings);
-		return msg.reply(`A command \`${args.name}\` has been successfully created.`);
+		customcommands[args.name] = {};
+		customcommands[args.name].response = args.response;
+		settings.customcommands = customcommands;
+		return settings.save().then(async () => {
+			msg.reply(`A command \`${args.name}\` has been successfully created.`);
+		}).catch(console.error);
 	}
 };

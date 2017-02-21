@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 const types = ['all', 'private', 'public', 'pm'];
 
 module.exports = class ServerLogsChannelCommand extends Command {
@@ -24,7 +25,8 @@ module.exports = class ServerLogsChannelCommand extends Command {
 						else return false;
 					},
 					parse: (str) => {
-						if (str.includes('private')) str.replace('private', 'pm');
+						if (str.includes('private')) return str.replace('private', 'pm');
+						else return str;
 					}
 				},
 				{
@@ -41,9 +43,14 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'welcome', {});
-		settings[args.type].enabled = args.enabled;
-		this.client.provider.set(msg.guild.id, 'welcome', settings);
-		return msg.reply(`${msg.client.funcs.capitalize(args.type)} has been ${args.enabled}.`);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let welcome = settings.welcome;
+		if (!welcome[args.type]) welcome[args.type] = {};
+		args.type === 'all' ? welcome.enabled = args.enabled : welcome[args.type].enabled = args.enabled; // eslint-disable-line
+		settings.welcome = welcome;
+		return settings.save().then(async () => {
+			msg.reply(`${msg.client.funcs.capitalize(args.type)} welcome messages have been ${args.enabled ? 'enabled' : 'disabled'}.`);
+		}).catch(console.error);
 	}
 };

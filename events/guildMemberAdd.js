@@ -1,10 +1,12 @@
-exports.run = (bot, member) => {
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+
+exports.run = async (bot, member) => {
   // joined
 	let d = new Date();
-	let bans = bot.provider.get(member.guild, 'bans');
-	const logs = bot.provider.get(member.guild, 'logs');
-	const welcome = bot.provider.get(member.guild, 'welcome');
-	let rolestate = bot.provider.get(member.guild, 'welcome');
+	let rolestate = bot.provider.get(member.guild, 'rolestate'); // unsure if provider is enough
+	const logs = bot.provider.get(member.guild, 'logs'); // unsure if provider is enough
+	const settings = await guildSettings.findOne({ where: { guildID: member.guild.id } });
+	const welcome = settings.welcome;
 
 	if (logs && logs.enabled && logs.channel && logs.fields.joins !== false) {
 		let embed = new bot.methods.Embed();
@@ -15,7 +17,7 @@ exports.run = (bot, member) => {
 		embed.setFooter(bot.user.username, bot.user.avatarURL);
 		member.guild.channels.get(logs.channel).sendEmbed(embed).catch(() => null);
 	}
-
+	/*
 	// AUTOBANS
 	if (bans && bans.includes(member.user.id)) {
 		member.guild.ban(member.user, 7).catch(() => {
@@ -24,14 +26,15 @@ exports.run = (bot, member) => {
 		bans.splice(bans.indexOf(member.user.id), 1);
 		bot.provider.set(member.guild, 'bans', bans);
 	}
+	*/
 
   // welcome messages
-	if (welcome && welcome.enabled === true) {
-		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message)	member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
+	if (welcome && welcome.enabled) {
+		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message) member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
 
 		if (welcome.public && welcome.public.enabled === true && welcome.public.message) {
 			if (welcome.public.channel && member.guild.channels.get(welcome.public.channel)) member.guild.channels.get(welcome.public.channel).sendMessage(welcome.public.message.replace(/USER/g, member));
-			else member.guild.owner.sendMessage(`A new member joined in\`${member.guild.name}\`but a valid channel is not set! Please set a valid channel for welcome messages in\`${member.guild.name}\`!`);
+			else member.guild.owner.sendMessage(`You seem to have welcome messages enabled, but not configured properly. A new member joined in\`${member.guild.name}\`but a valid channel is not set! Please set a valid channel for welcome messages in\`${member.guild.name}\`!`);
 		}
 	}
 	// ROLESTATE
@@ -51,7 +54,9 @@ exports.run = (bot, member) => {
 				member.guild.channels.get(logs.channel).sendEmbed(embed).catch(() => null);
 			}
 			delete rolestate.users[member.id];
-			bot.provider.set(member.guild, 'rolestate', rolestate);
+			settings.rolestate = rolestate;
+			return settings.save();
+			// bot.provider.set(member.guild, 'rolestate', rolestate);
 		}).catch(() => {
 			let roleNames = rolestate.users[member.id].map(roleid => {
 				let role = member.guild.roles.get(roleid);
@@ -61,6 +66,8 @@ exports.run = (bot, member) => {
 			});
 			member.guild.owner.sendMessage(`\uD83D\uDEAB I do not have permissions to reinstate the roles for ${member} in the server \`${member.guild.name}\`. Here are the roles I remembered for this user:\n\`${roleNames.join(', ').substring(2)}\`.`).then(() => {
 				delete rolestate.users[member.id];
+				// settings.rolestate = rolestate;
+				// return settings.save();
 				bot.provider.set(member.guild, 'rolestate', rolestate);
 			});
 		});

@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class ServerLogsChannelCommand extends Command {
 	constructor(client) {
@@ -29,9 +30,14 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'welcome', {});
-		settings.public.message = args.message;
-		this.client.provider.set(msg.guild.id, 'welcome', settings);
-		return msg.reply(`I have successfully set ${args.message} as the public welcome message.`);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let welcome = settings.welcome;
+		if (!welcome.public) welcome.public = {};
+		welcome.public.message = args.message;
+		settings.welcome = welcome;
+		return settings.save().then(async () => {
+			msg.reply(`I have successfully set ${args.message} as the public welcome message.`);
+		}).catch(console.error);
 	}
 };

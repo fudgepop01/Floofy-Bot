@@ -21,15 +21,15 @@ module.exports = class ReactFlairHelpCommand extends Command {
 				},
 				{
 					name: '**Step 1**: Enable it!',
-					value: 'In order to do this, type `reactionflairs enable`. You may disable this at any point in time.'
+					value: 'In order to do this, type `togglereactflair enable`. You may disable this at any point in time.'
 				},
 				{
 					name: '**Step 2**: Designate a channel!',
-					value: 'In order to do this, type `reactionsflairs channel <channel>` in order to tell me where I should look for reactions! This is very important for backend reasons...!'
+					value: 'In order to do this, type `reactflairchannel <channel>` in order to tell me where I should look for reactions! This is very important for backend reasons...!'
 				},
 				{
 					name: '**Step 3**: Designate roles!',
-					value: 'In order to do this, type `reactionflairs add <emoji> <role>`. Currently, I only offer support for **server-specific** emojis and global **unicode** characters, such as \u{2764}.'
+					value: 'In order to do this, type `addreactflair <emoji> <role>`. Currently, I only offer support for **server-specific** emojis and global **unicode** characters, such as \u{2764}.'
 				},
 				{
 					name: '\u200b',

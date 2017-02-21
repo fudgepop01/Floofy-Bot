@@ -133,12 +133,15 @@ exports.run = async (bot, message) => {
 	}	else if (cmd === 'shitpost') {
 		message.channel.sendFile('https://gfycat.com/ImpoliteSinfulBuzzard');
 	}	else if (cmd === 'fudgepls') {
-		let items = ['http://i.imgur.com/Dzluogq.png', 'http://i.imgur.com/zuXvbu5.png', 'http://i.imgur.com/KDEnkCh.png', 'http://i.imgur.com/BzXCPaU.jpg', 'http://i.imgur.com/a1E0Tu5.jpg', 'http://i.imgur.com/FdyrAgg.png', 'http://i.imgur.com/Ret960f.png', 'http://i.imgur.com/LaUcgQ6.png', 'http://i.imgur.com/98UqLzH.png', 'http://i.imgur.com/op0WrYE.jpg', 'http://i.imgur.com/zmbfitO.png', 'http://i.imgur.com/WQplDSf.jpg', "fabulous ain't it \n http://i.imgur.com/s2L5bWX.jpg", 'http://i.imgur.com/8SXQVMo.jpg', 'http://i.imgur.com/8xizNVr.png', 'http://i.imgur.com/8xizNVr.png', 'http://i.imgur.com/KJqdnKG.jpg', 'http://i.imgur.com/d7hGDcv.png'];
+		let items = ['http://i.imgur.com/Dzluogq.png', 'http://i.imgur.com/zuXvbu5.png', 'http://i.imgur.com/KDEnkCh.png', 'http://i.imgur.com/BzXCPaU.jpg', 'http://i.imgur.com/a1E0Tu5.jpg', 'http://i.imgur.com/FdyrAgg.png', 'http://i.imgur.com/Ret960f.png', 'http://i.imgur.com/LaUcgQ6.png', 'http://i.imgur.com/98UqLzH.png', 'http://i.imgur.com/op0WrYE.jpg', 'http://i.imgur.com/zmbfitO.png', 'http://i.imgur.com/WQplDSf.jpg', 'http://i.imgur.com/8SXQVMo.jpg', 'http://i.imgur.com/8xizNVr.png', 'http://i.imgur.com/8xizNVr.png', 'http://i.imgur.com/KJqdnKG.jpg', 'http://i.imgur.com/d7hGDcv.png'];
 		message.channel.sendMessage(`${items[Math.floor(Math.random() * items.length)]}`);
 	} else if (cmd === 'rekt') {
 		message.channel.sendFile('http://i.imgur.com/tc5RhwT.gifv');
 	} else {
-		const customcommands = bot.provider.get(message.guild, 'customcommands', {});
+		const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+		const settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
+		// const customcommands = settings ? JSON.stringify(settings.customcommands) : null;
+		let customcommands = settings.customcommands;
 		if (!customcommands) return;
 		let exists = true;
 		Object.keys(customcommands).forEach((name) => {
