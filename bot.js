@@ -95,16 +95,18 @@ client
 			client.user.setGame(games[Math.floor(Math.random() * games.length)]);
 		}, Math.floor(Math.random() * (600000 - 120000 + 1)) + 120000);
 	})
-	.on('messageReactionAdd', (messageReaction, user) => {
+	.on('messageReactionAdd', async (messageReaction, user) => {
 		if (messageReaction.emoji.name !== '⭐') return;
 		if (!messageReaction.message.guild.channels.exists('name', 'starboard')) return;
 		let image;
 		if (messageReaction.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = messageReaction.message.attachments.first().url;
-		messageReaction.message.guild.channels.find('name', 'starboard').send(stripIndents`
+		await messageReaction.message.guild.channels.find('name', 'starboard').send(stripIndents`
+			●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
 			**Author**: \`${user.username} #${user.discriminator}\` | **Channel**: \`${messageReaction.message.channel.name}\` | **ID**: \`${messageReaction.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
 			**Message**:
-			${messageReaction.message.cleanContent} ${image ? image : ''}
+			${messageReaction.message.cleanContent}
 			`).catch(null);
+		image ? await messageReaction.message.guild.channels.find('name', 'starboard').sendFile(image) : null;
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })
@@ -117,8 +119,12 @@ client
 	})
 	.on('message', async (message) => {
 		if (message.author.bot || message.channel.type === 'dm') return;
-		const words = message.guild.settings.get('filter');
-		if (!message.client.funcs.isStaff(message.member) && message.client.funcs.hasFilteredWord(words, message.client.funcs.filterWord(message.content))) {
+		const guildSettings = require('./dataProviders/postgreSQL/models/GuildSettings');
+		// badly needs to make use of redis
+		let settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
+ 		if (!settings || !settings.filter || !settings.filter.enabled) return;
+		const words = settings.filter.words;
+		if (!client.funcs.isStaff(message.member) && client.funcs.hasFilteredWord(words, client.funcs.filterWord(message.content))) {
 			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);
 			await message.delete();
 			return;

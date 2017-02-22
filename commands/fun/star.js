@@ -26,15 +26,14 @@ module.exports = class ChatCommand extends Command {
 		if (!msg.guild.channels.exists('name', 'starboard')) return;
 		let image;
 		if (args.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = args.message.attachments.first().url;
-		msg.guild.channels.find('name', 'starboard').send(stripIndents`
+		await msg.guild.channels.find('name', 'starboard').send(stripIndents`
 			●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
 			**Author**: \`${args.message.author.username} #${args.message.author.discriminator}\` | **Channel**: \`${args.message.channel.name}\` | **ID**: \`${args.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
 			**Message**:
-			${args.message.cleanContent} ${image ? image : ''}
+			${args.message.cleanContent}
 			`).catch(null);
+		image ? await msg.guild.channels.find('name', 'starboard').sendFile(image) : null;
 		msg.delete().catch(null);
 		return;
 	}
 };
-// ●▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
-// ●▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬●

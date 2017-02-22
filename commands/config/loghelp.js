@@ -4,6 +4,7 @@ module.exports = class WelcomeHelpCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'loghelp',
+			alises: ['logshelp', 'logginghelp'],
 			group: 'config',
 			memberName: 'loghelp',
 			description: 'Details on how to set up logging.'

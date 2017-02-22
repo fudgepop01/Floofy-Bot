@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings')
 
 module.exports = class AddFilterCommand extends Command {
 	constructor(client) {
@@ -26,9 +27,15 @@ module.exports = class AddFilterCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let words = msg.guild.settings.get('filter', []);
-		words.push(args.word);
-		msg.guild.settings.set('filter', words);
-		return msg.reply(`The word \`${args.word}\` has been successfully added to the list of blacklisted words.`);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+ 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let filter = settings.filter;
+ 		if (!filter.words) filter.words = [];
+		if (filter.words.includes(args.word)) return msg.reply(`The word \`${args.word}\` is already blacklisted.`);
+		filter.words.push(args.word);
+		settings.filter = filter;
+		return settings.save().then(() => {
+			msg.reply(`The word \`${args.word}\` has been successfully added to the list of blacklisted words.`);
+		}).catch(console.error);
 	}
 };

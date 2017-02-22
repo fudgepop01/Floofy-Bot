@@ -141,8 +141,8 @@ exports.run = async (bot, message) => {
 		const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
 		const settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
 		// const customcommands = settings ? JSON.stringify(settings.customcommands) : null;
-		let customcommands = settings.customcommands;
-		if (!customcommands) return;
+		if (settings || !settings.customcommands) return;
+		const customcommands = settings.customcommands;
 		let exists = true;
 		Object.keys(customcommands).forEach((name) => {
 			if (name === cmd || `,${cmd}` === name) {
