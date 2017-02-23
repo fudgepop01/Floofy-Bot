@@ -1,4 +1,5 @@
 module.exports = (word) => {
+	word = word.toLowerCase();
 	return word.replace(/[!l1i]/g, 'i')
 	.replace(/3/g, 'e')
 	.replace(/4@/g, 'a')

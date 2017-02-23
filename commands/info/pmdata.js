@@ -285,7 +285,7 @@ module.exports = class PMDataCommand extends Command {
 					let id = [], damage = [], directions = [], BaseKB = [], KBGrowth = [], WeightKB = [], shieldDmg = [], shieldStun = [], hitLag = [];
 
 					for (let part in data[frame]) {
-						if (part.startsWith('hitbox')) {
+						if (part.startsWith('hitbox')) { // eslint-disable-line max-depth
 							info = data[frame][part];
 							id.push(info.id);
 							damage.push(info.damage);
@@ -364,7 +364,7 @@ function getAliasMatch(str, obj) {
 					return match;
 				}
 			}
-		}		else {
+		}	else {
 			let length = obj[name].alias.length;
 			while (length--) {
 				if (str.includes(obj[name].alias[length])) {

@@ -106,7 +106,7 @@ client
 			**Message**:
 			${messageReaction.message.cleanContent}
 			`).catch(null);
-		image ? await messageReaction.message.guild.channels.find('name', 'starboard').sendFile(image) : null;
+		image ? await messageReaction.message.guild.channels.find('name', 'starboard').sendFile(image) : null; // eslint-disable-line no-unused-expressions
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })
@@ -119,15 +119,14 @@ client
 	})
 	.on('message', async (message) => {
 		if (message.author.bot || message.channel.type === 'dm') return;
-		const guildSettings = require('./dataProviders/postgreSQL/models/GuildSettings');
-		// badly needs to make use of redis
-		let settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
- 		if (!settings || !settings.filter || !settings.filter.enabled) return;
-		const words = settings.filter.words;
-		if (!client.funcs.isStaff(message.member) && client.funcs.hasFilteredWord(words, client.funcs.filterWord(message.content))) {
-			await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);
-			await message.delete();
-			return;
+		let words = await redis.db.getAsync(`filter${message.guild.id}`).then(JSON.parse);
+		let enabled = await redis.db.getAsync(`filterenabled${message.guild.id}`).then(JSON.parse);
+		if (enabled && words) {
+			if (!client.funcs.isStaff(message.member) && client.funcs.hasFilteredWord(words, client.funcs.filterWord(message.content))) {
+				await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);
+				await message.delete();
+				return;
+			}
 		}
 
 		const channelLocks = message.guild.settings.get('locks', []);
@@ -135,7 +134,7 @@ client
 		if (earnedRecently.includes(message.author.id)) return;
 
 		const hasImageAttachment = message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/));
-		const moneyEarned = hasImageAttachment ? Math.ceil(Math.random() * 7) + 1 : Math.ceil(Math.random() * 7) + 5;
+		const moneyEarned = hasImageAttachment ? Math.ceil(Math.random() * 7) + 5 : Math.ceil(Math.random() * 7) + 1;
 
 		Currency.addBalance(message.author.id, moneyEarned);
 
@@ -153,7 +152,8 @@ client
 
 				if (newLevel > oldLevel) {
 					Currency._changeBalance(message.author.id, 100 * newLevel);
-					// check if server wants exp notifs, then announce
+					const notifs = message.guild.settings.get('levelNotifs', false);
+					if (notifs) message.reply(`Congratulations, you have leveled up to Level ${newLevel}!`);
 				}
 			}).catch(winston.error);
 

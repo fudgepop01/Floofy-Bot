@@ -15,7 +15,7 @@ module.exports = class BoobsCommand extends Command {
 	async run(msg) {
 		const nsfw = msg.client.provider.get(msg.guild, 'nsfw', {});
 		if (!nsfw && !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
-		if (nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
+		if (!nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
 		return superagent.get('http://api.oboobs.ru/boobs/0/1/random').then(res => {
 			msg.channel.send(`http://media.oboobs.ru/${res[0].preview}`);
 		})

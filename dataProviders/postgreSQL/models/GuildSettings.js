@@ -38,11 +38,11 @@ let GuildSettings = database.db.define('guildSettings', {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
-	rolestate: {
+	logs: {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
-	logs: {
+	nsfw: {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	}

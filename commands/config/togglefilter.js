@@ -1,5 +1,7 @@
 const { Command } = require('discord.js-commando');
 const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
+const Redis = require('../../dataProviders/redis/Redis');
+const redis = new Redis();
 
 module.exports = class ToggleFilterCommand extends Command {
 	constructor(client) {
@@ -32,8 +34,8 @@ module.exports = class ToggleFilterCommand extends Command {
 		let filter = settings.filter;
 		filter.enabled = args.enabled;
 		settings.filter = filter;
-		return settings.save().then(async () => {
-			msg.reply(`Filtered words have been ${args.enabled ? 'enabled' : 'disabled'}.`);
-		}).catch(console.error);
+		await redis.db.setAsync(`filterenabled${msg.guild.id}`, JSON.stringify(filter.enabled)).catch(console.error);
+		await settings.save().catch(console.error);
+		return msg.reply(`Filtered words have been ${args.enabled ? 'enabled' : 'disabled'}.`);
 	}
 };

@@ -24,7 +24,7 @@ module.exports = class Rule34Command extends Command {
 	async run(msg, args) {
 		const nsfw = msg.client.provider.get(msg.guild, 'nsfw', {});
 		if (!nsfw && !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
-		if (nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
+		if (!nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
 		return superagent.get(`http://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=$${encodeURI(args.tags)}`)
 		.set('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36')
 		.end((err, res) => {
