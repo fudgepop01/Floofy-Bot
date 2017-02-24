@@ -14,15 +14,14 @@ module.exports = class CreateCommandCommand extends Command {
 			description: 'Create a custom command for your server.',
 			guildOnly: true,
 			details: oneLine`
-				Format is: \`.createcommand ,name response\`\n
-				For responses with a random selection: \`.createcommand name response | item1; item2; item3\`\n
-				To start with a random selection: \`.createcommand name | item1; item2; item3 | response\`
+				Format is: \`.createcommand name response\`\n
+				For responses with a random selection: \`.createcommand name response $rand:{item1; item2; item3}\`\`\n
 			`,
 			examples: [
 				'createcommand say hello',
-				'createcommand randompicture | picture1; picture2; picture3',
-				'createcommand onething Dogs are | adorable ; cute ; sweet | aren\'t they?',
-				'createcommand dogsorcats | Dogs; Cats | are | adorable; cute; sweet | aren\'t they?'
+				'createcommand randompicture $rand:{picture1; picture2; picture3}',
+				'createcommand onething Dogs are $rand:{adorable ; cute ; sweet} aren\'t they?',
+				'createcommand dogsorcats $rand:{Dogs; Cats} are $rand"{adorable; cute; sweet} aren\'t they?'
 			],
 			args: [
 				{
@@ -49,7 +48,6 @@ module.exports = class CreateCommandCommand extends Command {
 		let customcommands = settings.customcommands;
 		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
 		if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
-		args.response = args.response.split('|');
 		customcommands[args.name] = {};
 		customcommands[args.name].response = args.response;
 		settings.customcommands = customcommands;
