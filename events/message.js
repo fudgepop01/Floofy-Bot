@@ -158,7 +158,13 @@ exports.run = async (bot, message) => {
 						}
 					}
 					message.channel.sendMessage(output);
-				}	else { message.channel.sendMessage(customcommands[name].response); }
+				}
+				else { 
+					message.channel.sendMessage(customcommands[name].response.replace(/\$rand:?{[^}]*}/g, (text) => {
+						text = text.substring(6, text.length-1).split(";");
+						return text[Math.floor(Math.random()*text.length)]
+					})); 
+				}
 				exists = true;
 			}
 		});
