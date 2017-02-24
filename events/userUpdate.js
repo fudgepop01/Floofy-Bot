@@ -1,7 +1,10 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings')
+
 exports.run = (bot, olduser, newuser) => {
   // avatars
 	bot.guilds.forEach(guild => {
-		let logs = bot.provider.get(guild, 'logs');
+		let settings = await guildSettings.findOne({ where: { guildID: guild.id } });
+		let logs = settings.logs;
 		if (newuser.bot) return;
 		if (!guild.member(olduser.id)) return;
 		if (logs && logs.enabled && logs.channel) {

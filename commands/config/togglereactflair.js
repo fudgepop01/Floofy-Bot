@@ -1,6 +1,7 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
-module.exports = class ServerLogsChannelCommand extends Command {
+module.exports = class ToggleReactFlairCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'togglereactflair',
@@ -26,9 +27,12 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = msg.guild.settings.get('reactionflairs', {});
-		settings.enabled = args.enabled;
-		msg.guild.settings.set('reactionflairs', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let reactions = settings.reactions;
+		reactions.enabled = args.enabled;
+		settings.reactions = reactions;
+		await settings.save().catch(console.error);
 		return msg.reply(`Reaction flairs have been ${args.enabled ? 'enabled' : 'diabled'}.`);
 	}
 };

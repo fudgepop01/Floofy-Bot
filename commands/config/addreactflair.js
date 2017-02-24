@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class AddReactFlairCommand extends Command {
 	constructor(client) {
@@ -31,9 +32,12 @@ module.exports = class AddReactFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'reactionflairs', {});
-		settings[args.role.id] = args.emoji.id ? args.emoji.id : args.emoji;
-		this.client.provider.set(msg.guild.id, 'reactionflairs', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let reactions = settings.reactions;
+		reactions[args.role.id] = args.emoji.id ? args.emoji.id : args.emoji;
+		settings.reactions = reactions;
+		await settings.save().catch(console.error);
 		return msg.reply(`I have successfully added ${args.role.name} and ${args.emoji} to the list of self-assignable roles by reactions.`);
 	}
 };

@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class RemoveReactFlairCommand extends Command {
 	constructor(client) {
@@ -26,9 +27,12 @@ module.exports = class RemoveReactFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'reactionflairs', {});
-		delete settings[args.role.id];
-		this.client.provider.set(msg.guild.id, 'reactionflairs', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let reactions = settings.reactions;
+		delete reactions[args.role.id];
+		settings.reactions = reactions;
+		await settings.save().catch(console.error);
 		return msg.reply(`I have successfully removed ${args.role.name} from the list of self-assignable roles by reactions.`);
 	}
 };

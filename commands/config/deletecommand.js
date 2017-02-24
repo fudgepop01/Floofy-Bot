@@ -1,4 +1,7 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
+const Redis = require('../../dataProviders/redis/Redis');
+const redis = new Redis();
 
 module.exports = class DeleteCommandCommand extends Command {
 	constructor(client) {
@@ -27,11 +30,16 @@ module.exports = class DeleteCommandCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'customcommands', {});
-		if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let customcommands = settings.customcommands;
+		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
+		if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
 		if (!settings[args.name]) return msg.reply(`The command \`${args.name}\` does not exist!`);
 		delete settings[args.name];
-		this.client.provider.set(msg.guild.id, 'customcommands', settings);
+		settings.customcommands = customcommands;
+		await redis.db.setAsync(`customcommands${msg.guild.id}`, JSON.stringify(customcommands)).catch(console.error);
+		await settings.save().catch(console.error);
 		return msg.reply(`The command \`${args.name}\` has been successfully removed.`);
 	}
 };

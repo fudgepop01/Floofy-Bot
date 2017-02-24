@@ -35,6 +35,6 @@ module.exports = class NSFWChannelCommand extends Command {
 		else nsfw.channels.push(args.channel.id);
 		settings.nsfw = nsfw;
 		await settings.save().catch(console.error);
-		return msg.reply(`I have ${nsfw.channels.includes(args.channel.id) ? 'whitelisted' : 'blacklisted'} ${args.channel}.`);
+		return msg.reply(`I have ${nsfw.channels.includes(args.channel.id) ? 'permitted' : 'blocked'} NSFW in ${args.channel}.`);
 	}
 };

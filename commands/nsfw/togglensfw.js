@@ -14,7 +14,7 @@ module.exports = class ToggleNSFWCommand extends Command {
 			],
 			args: [
 				{
-					key: 'type',
+					key: 'enabled',
 					prompt: `Would you like to enable or disable NSFW?\n`,
 					type: 'boolean'
 				}

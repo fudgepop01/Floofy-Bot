@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 const fields = ['nicknames', 'roles', 'usernames', 'joins', 'leaves', 'bans', 'avatars', 'messages'];
 
 module.exports = class LogFieldToggleCommand extends Command {
@@ -36,9 +37,12 @@ module.exports = class LogFieldToggleCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let logs = msg.client.provider.get(msg.guild, 'logs', {});
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let logs = settings.logs;
 		logs[args.field] = args.enabled;
-		msg.client.provider.set(msg.guild, 'logs', logs);
+		settings.logs = logs;
+		await settings.save().catch(console.error);
 		return msg.reply(`I have ${args.enabled ? 'enabled' : 'disabled'} the logging of ${args.field}.`);
 	}
 };

@@ -138,11 +138,11 @@ exports.run = async (bot, message) => {
 	} else if (cmd === 'rekt') {
 		message.channel.sendFile('http://i.imgur.com/tc5RhwT.gifv');
 	} else {
-		const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
-		const settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
+		const Redis = require('../dataProviders/redis/Redis');
+		const redis = new Redis();
+		const customcommands = await redis.db.getAsync(`customcommands${message.guild.id}`).then(JSON.parse);
 		// const customcommands = settings ? JSON.stringify(settings.customcommands) : null;
-		if (settings || !settings.customcommands) return;
-		const customcommands = settings.customcommands;
+		if (!customcommands) return;
 		let exists = true;
 		Object.keys(customcommands).forEach((name) => {
 			if (name === cmd || `,${cmd}` === name) {

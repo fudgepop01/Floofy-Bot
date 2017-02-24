@@ -3,10 +3,10 @@ const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings'
 exports.run = async (bot, member) => {
   // joined
 	let d = new Date();
-	let rolestate = bot.provider.get(member.guild, 'rolestate'); // unsure if provider is enough
-	const logs = bot.provider.get(member.guild, 'logs'); // unsure if provider is enough
 	const settings = await guildSettings.findOne({ where: { guildID: member.guild.id } });
 	const welcome = settings.welcome;
+	const logs = settings.logs;
+	let rolestate = settings.rolestate;
 
 	if (logs && logs.enabled && logs.channel && logs.fields.joins !== false) {
 		let embed = new bot.methods.Embed();

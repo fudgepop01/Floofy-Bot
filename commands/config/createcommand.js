@@ -1,6 +1,8 @@
 const { Command } = require('discord.js-commando');
 const { oneLine } = require('common-tags');
 const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
+const Redis = require('../../dataProviders/redis/Redis');
+const redis = new Redis();
 
 module.exports = class CreateCommandCommand extends Command {
 	constructor(client) {
@@ -45,13 +47,14 @@ module.exports = class CreateCommandCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let customcommands = settings.customcommands;
-		if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
+		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
+		if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
 		args.response = args.response.split('|');
 		customcommands[args.name] = {};
 		customcommands[args.name].response = args.response;
 		settings.customcommands = customcommands;
-		return settings.save().then(async () => {
-			msg.reply(`A command \`${args.name}\` has been successfully created.`);
-		}).catch(console.error);
+		await redis.db.setAsync(`customcommands${msg.guild.id}`, JSON.stringify(customcommands)).catch(console.error);
+		await settings.save().catch(console.error);
+		return msg.reply(`A command \`${args.name}\` has been successfully created.`);
 	}
 };

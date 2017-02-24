@@ -25,7 +25,7 @@ module.exports = class WelcomeHelpCommand extends Command {
 				},
 				{
 					name: '**Step 3**: Enable it',
-					value: 'In order to do this, type in `togglewelcome enable` to enable both public and private welcome messages. You can disable this at any point in time, just use `disable` instead of `enable`.\nIn case you wish to enable or disable one or the other specifically, type `togglewelcome private enable` or `togglewelcome public disable`.'
+					value: 'In order to do this, type in `togglewelcome all enable` to enable both public and private welcome messages. You can disable this at any point in time, just use `disable` instead of `enable`.\nIn case you wish to enable or disable one or the other specifically, type `togglewelcome private enable` or `togglewelcome public disable`.'
 				}
 			]
 		});

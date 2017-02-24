@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class ServerLogsChannelCommand extends Command {
 	constructor(client) {
@@ -26,9 +27,12 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = msg.guild.settings.get('logs', {});
-		settings.enabled = args.enabled;
-		msg.guild.settings.set('welcome', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let logs = settings.logs;
+		logs.enabled = args.enabled;
+		settings.logs = logs;
+		await settings.save().catch(console.error);
 		return msg.reply(`logging has been ${args.enabled ? 'enabled' : 'disabled'}.`);
 	}
 };

@@ -26,7 +26,11 @@ let GuildSettings = database.db.define('guildSettings', {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
-	flair: {
+	flairs: {
+		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		defaultValue: {}
+	},
+	reactions: {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},

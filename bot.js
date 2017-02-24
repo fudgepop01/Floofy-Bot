@@ -119,8 +119,8 @@ client
 	})
 	.on('message', async (message) => {
 		if (message.author.bot || message.channel.type === 'dm') return;
-		let words = await redis.db.getAsync(`filter${message.guild.id}`).then(JSON.parse);
-		let enabled = await redis.db.getAsync(`filterenabled${message.guild.id}`).then(JSON.parse);
+		const words = await redis.db.getAsync(`filter${message.guild.id}`).then(JSON.parse);
+		const enabled = await redis.db.getAsync(`filterenabled${message.guild.id}`).then(JSON.parse);
 		if (enabled && words) {
 			if (!client.funcs.isStaff(message.member) && client.funcs.hasFilteredWord(words, client.funcs.filterWord(message.content))) {
 				await message.author.send(`Your message \`${message.content}\` was deleted due to breaking the filter!`);

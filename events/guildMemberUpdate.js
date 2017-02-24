@@ -1,6 +1,8 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+
 exports.run = (bot, oldMember, newMember) => {
   // nicknames, roles
-	const logs = bot.provider.get(newMember.guild, 'logs');
+	const logs = settings.logs
 	if (logs && logs.enabled && logs.channel) {
 		let embed = new bot.methods.Embed();
 		embed.setTimestamp(new Date()).setAuthor(`${oldMember.user.username} (${oldMember.user.id})`, oldMember.user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);

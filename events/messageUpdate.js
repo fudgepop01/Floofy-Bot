@@ -1,7 +1,12 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+const Redis = require('../dataProviders/redis/Redis');
+const redis = new Redis();
+
 exports.run = async (bot, oldmsg, newmsg) => {
 	if (!oldmsg.guild || !oldmsg.guild.available) return;
-	const logs = bot.provider.get(newmsg.guild, 'logs');
-	if (logs && logs.enablede && logs.channel && logs.fields.messages !== false) {
+	const settings = await guildSettings.findOne({ where: { guildID: newmsg.guild.id } });
+	const logs = settings.logs;
+	if (logs && logs.enabled && logs.channel && logs.fields.messages !== false) {
 		if (oldmsg !== null && newmsg !== null && oldmsg.content !== newmsg.content) {
 			let embed = new bot.methods.Embed(), oldout = '', newout = '';
 

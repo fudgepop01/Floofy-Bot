@@ -1,8 +1,11 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+
 exports.run = (bot, member) => {
   // leaves/kicks
-	const logs = bot.provider.get(member.guild, 'logs');
-	const mentions = bot.provider.get(member.guild, 'mentions');
-	let rolestate = bot.provider.get(member.guild, 'rolestate', {});
+	const settings = await guildSettings.findOne({ where: { guildID: member.guild.id } });
+	const logs = settings.logs;
+	// const mentions = bot.provider.get(member.guild, 'mentions');
+	let rolestate = settings.rolestate;
 
 	if (logs && logs.enable && logs.channel && logs.fields.leaves !== false) {
 		let embed = new bot.methods.Embed();

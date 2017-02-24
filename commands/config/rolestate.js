@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class RoleStateCommand extends Command {
 	constructor(client) {
@@ -17,9 +18,12 @@ module.exports = class RoleStateCommand extends Command {
 	}
 
 	async run(msg) {
-		const settings = this.client.provider.get(msg.guild, 'filter', { users: [] });
-		settings.enabled ? settings.enabled = false : settings.enabled = true; // eslint-disable-line no-unused-expressions
-		this.client.provider.set(msg.guild.id, 'filter', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let rolestate = settings.rolestate;
+		rolestate.enabled ? rolestate.enabled = false : settings.enabled = true; // eslint-disable-line no-unused-expressions
+		settings.rolestate = rolestate;
+		await settings.save().catch(console.error);
 		return msg.reply(`Rolestate has been successfully ${settings.enabled ? 'enabled' : 'disabled'}!`);
 	}
 };

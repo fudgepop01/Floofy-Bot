@@ -1,6 +1,9 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+
 exports.run = (bot, server, user) => {
   // unbans
-	let logs = bot.provider.get(server, 'logs');
+	const settings = await guildSettings.findOne({ where: { guildID: server.id } });
+	const logs = settings.logs;
 	if (logs && logs.enabled && logs.channel && logs.fields.bans !== false) {
 		let embed = new bot.methods.Embed();
 		embed.setColor('#66ff99');

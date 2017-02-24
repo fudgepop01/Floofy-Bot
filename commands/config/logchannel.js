@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class ServerLogsChannelCommand extends Command {
 	constructor(client) {
@@ -26,9 +27,12 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		const settings = this.client.provider.get(msg.guild, 'logs', {});
-		settings.channel = args.channel.id;
-		this.client.provider.set(msg.guild.id, 'logs', settings);
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let logs = settings.logs;
+		logs.channel = args.channel.id;
+		settings.logs = logs;
+		await settings.save().catch(console.error);
 		return msg.reply(`I have successfully set ${args.channel} as the channel for server logs.`);
 	}
 };

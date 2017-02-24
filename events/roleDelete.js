@@ -1,7 +1,11 @@
+const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+
 exports.run = (bot, role) => {
-	let imRoles = bot.provider.get(role.guild, 'imRoles');
-	if (imRoles && imRoles.includes(role.id)) {
-		imRoles.splice(imRoles.indexOf(role.id), 1);
-		bot.provider.set(role.guild, 'imRoles');
+	const settings = await guildSettings.findOne({ where: { guildID: role.guild.id } });
+	let flairs = settings.flairs;
+	if (flairs && flairs.includes(role.id)) {
+		flairs.splice(flairs.indexOf(role.id), 1);
+		settings.flairs = flairs;
+		settings.save().catch(console.error);
 	}
 };

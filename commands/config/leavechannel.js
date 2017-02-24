@@ -1,16 +1,16 @@
 const { Command } = require('discord.js-commando');
 const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
-module.exports = class ReactFlairChannelCommand extends Command {
+module.exports = class LeaveChannelCommand extends Command {
 	constructor(client) {
 		super(client, {
-			name: 'reactflairchannel',
+			name: 'leavechannel',
 			group: 'config',
-			memberName: 'reactflairchannel',
-			description: 'Sets the channel for automatic role assignment by reactions',
+			memberName: 'leavechannel',
+			description: 'Sets the channel for leave messages.',
 			guildOnly: true,
 			examples: [
-				'reactflairchannel flair_channel'
+				'leavechannel general'
 			],
 			args: [
 				{
@@ -29,10 +29,10 @@ module.exports = class ReactFlairChannelCommand extends Command {
 	async run(msg, args) {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
-		let reactions = settings.reactions;
-		reactions.channel = args.channel.id;
-		settings.reactions = reactions;
+		let leave = settings.leave;
+		leave.channel = args.channel.id;
+		settings.leave = leave;
 		await settings.save().catch(console.error);
-		return msg.reply(`I have successfully set ${args.channel} as the channel for automatic role assignment by reactions.`);
+		return msg.reply(`I have successfully set ${args.channel} as the destination channel for welcome messages.`);
 	}
 };

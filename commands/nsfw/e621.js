@@ -1,5 +1,6 @@
 const { Command } = require('discord.js-commando');
 const superagent = require('superagent');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
 module.exports = class E621Command extends Command {
 	constructor(client) {
@@ -21,7 +22,9 @@ module.exports = class E621Command extends Command {
 	}
 
 	async run(msg, args) {
-		const nsfw = msg.client.provider.get(msg.guild, 'nsfw', {});
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		const nsfw = settings.nsfw;
 		if (!nsfw && !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
 		if (!nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
 		let str = 'No result.';

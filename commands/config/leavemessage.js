@@ -1,22 +1,25 @@
 const { Command } = require('discord.js-commando');
 const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 
-module.exports = class ReactFlairChannelCommand extends Command {
+module.exports = class LeaveMessageCommand extends Command {
 	constructor(client) {
 		super(client, {
-			name: 'reactflairchannel',
+			name: 'leavemessage',
 			group: 'config',
-			memberName: 'reactflairchannel',
-			description: 'Sets the channel for automatic role assignment by reactions',
+			memberName: 'leavemessage',
+			description: 'Sets the leave message.',
 			guildOnly: true,
 			examples: [
-				'reactflairchannel flair_channel'
+				'leavemessage Goodbye, [user]!'
 			],
 			args: [
 				{
-					key: 'channel',
-					prompt: 'What channel would you like to set?\n',
-					type: 'channel'
+					key: 'message',
+					prompt: 'What should the leave welcome message be?\n',
+					type: 'string',
+					parse: (str) => {
+						return str.replace(/\[user]/g, 'USER');
+					}
 				}
 			]
 		});
@@ -29,10 +32,10 @@ module.exports = class ReactFlairChannelCommand extends Command {
 	async run(msg, args) {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
-		let reactions = settings.reactions;
-		reactions.channel = args.channel.id;
-		settings.reactions = reactions;
+		let leave = settings.leave;
+		leave.message = args.message;
+		settings.leave = leave;
 		await settings.save().catch(console.error);
-		return msg.reply(`I have successfully set ${args.channel} as the channel for automatic role assignment by reactions.`);
+		return msg.reply(`I have successfully set ${args.message} as the leave message.`);
 	}
 };
