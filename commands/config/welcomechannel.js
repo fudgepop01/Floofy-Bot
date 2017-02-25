@@ -30,6 +30,7 @@ module.exports = class ServerLogsChannelCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let welcome = settings.welcome;
+		if (!welcome.public) welcome.public = {};
 		welcome.public.channel = args.channel.id;
 		settings.welcome = welcome;
 		return settings.save().then(async () => {

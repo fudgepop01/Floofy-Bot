@@ -5,6 +5,7 @@ const redis = new Redis();
 exports.run = async (bot, oldmsg, newmsg) => {
 	if (!oldmsg.guild || !oldmsg.guild.available) return;
 	const settings = await guildSettings.findOne({ where: { guildID: newmsg.guild.id } });
+	if (!settings) return;
 	const logs = settings.logs;
 	if (logs && logs.enabled && logs.channel && logs.fields.messages !== false) {
 		if (oldmsg !== null && newmsg !== null && oldmsg.content !== newmsg.content) {

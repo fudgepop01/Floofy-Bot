@@ -1,5 +1,8 @@
 const { Command } = require('discord.js-commando');
 
+const Redis = require('../../dataProviders/redis/Redis');
+const redis = new Redis();
+
 module.exports = class ChatCommand extends Command {
 	constructor(client) {
 		super(client, {

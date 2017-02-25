@@ -21,9 +21,9 @@ module.exports = class RoleStateCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let rolestate = settings.rolestate;
-		rolestate.enabled ? rolestate.enabled = false : settings.enabled = true; // eslint-disable-line no-unused-expressions
+		rolestate.enabled ? rolestate.enabled = false : rolestate.enabled = true; // eslint-disable-line no-unused-expressions
 		settings.rolestate = rolestate;
 		await settings.save().catch(console.error);
-		return msg.reply(`Rolestate has been successfully ${settings.enabled ? 'enabled' : 'disabled'}!`);
+		return msg.reply(`Rolestate has been successfully ${rolestate.enabled ? 'enabled' : 'disabled'}!`);
 	}
 };

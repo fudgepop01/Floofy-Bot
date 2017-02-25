@@ -1,8 +1,10 @@
 const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
 
-exports.run = (bot, oldMember, newMember) => {
+exports.run = async (bot, oldMember, newMember) => {
   // nicknames, roles
-	const logs = settings.logs
+	const settings = await guildSettings.findOne({ where: { guildID: newMember.guild.id } });
+	if (!settings) return;
+	const logs = settings.logs;
 	if (logs && logs.enabled && logs.channel) {
 		let embed = new bot.methods.Embed();
 		embed.setTimestamp(new Date()).setAuthor(`${oldMember.user.username} (${oldMember.user.id})`, oldMember.user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);

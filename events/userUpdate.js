@@ -1,12 +1,11 @@
 const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings')
 
-exports.run = (bot, olduser, newuser) => {
+exports.run = async (bot, olduser, newuser) => {
   // avatars
-	bot.guilds.forEach(guild => {
+	for (let guild of bot.guilds) {
 		let settings = await guildSettings.findOne({ where: { guildID: guild.id } });
+		if (!settings || newuser.bot || !guild.member(olduser.id)) continue;
 		let logs = settings.logs;
-		if (newuser.bot) return;
-		if (!guild.member(olduser.id)) return;
 		if (logs && logs.enabled && logs.channel) {
 			let embed = new bot.methods.Embed();
 			embed.setTimestamp(new Date()).setAuthor(`${newuser.username} (${newuser.id})`, newuser.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);
@@ -23,5 +22,5 @@ exports.run = (bot, olduser, newuser) => {
 				guild.channels.get(logs.channel).sendEmbed(embed).catch(() => null);
 			}
 		}
-	});
+	}
 };

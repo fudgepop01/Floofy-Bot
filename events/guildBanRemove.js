@@ -1,8 +1,9 @@
 const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
 
-exports.run = (bot, server, user) => {
+exports.run = async (bot, server, user) => {
   // unbans
 	const settings = await guildSettings.findOne({ where: { guildID: server.id } });
+	if (!settings) return;
 	const logs = settings.logs;
 	if (logs && logs.enabled && logs.channel && logs.fields.bans !== false) {
 		let embed = new bot.methods.Embed();

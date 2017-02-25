@@ -1,7 +1,7 @@
 exports.run = async (bot, message) => {
 	// memes
 	let input = message.content.toLowerCase();
-	if (!input.startsWith(bot.commandPrefix) && !input.length <= 2) return;
+	if (!input.startsWith(message.guild.commandPrefix) && !input.length <= 2) return;
 	let cmd = input.slice(1).split(' ')[0];
 
 	if (cmd === 'nicememe') {
@@ -140,34 +140,25 @@ exports.run = async (bot, message) => {
 	} else {
 		const Redis = require('../dataProviders/redis/Redis');
 		const redis = new Redis();
-		const customcommands = await redis.db.getAsync(`customcommands${message.guild.id}`).then(JSON.parse);
-		// const customcommands = settings ? JSON.stringify(settings.customcommands) : null;
-		if (!customcommands) return;
-		let exists = true;
-		Object.keys(customcommands).forEach((name) => {
-			if (name === cmd || `,${cmd}` === name) {
-				if (customcommands[name].response.constructor === Array) {
-					var output = '';
-					var response = customcommands[name].response;
-					for (var i = 0; i < response.length; i++) {
-						if (i % 2 === 0) {
-							output += response[i];
-						} else if (i % 2 === 1) {
-							let outcomes = response[i].split(';');
-							output += outcomes[Math.floor(Math.random() * outcomes.length)].trim();
-						}
-					}
-					message.channel.sendMessage(output);
+		const customcommand = await redis.db.getAsync(`customcommand${message.guild.id}${cmd}`);
+		if (!customcommand) return;
+		if (customcommand.constructor === Array) {
+			let output = '';
+			let response = customcommand;
+			for (let i = 0; i < response.length; i++) {
+				if (i % 2 === 0) {
+					output += response[i];
+				} else if (i % 2 === 1) {
+					let outcomes = response[i].split(';');
+					output += outcomes[Math.floor(Math.random() * outcomes.length)].trim();
 				}
-				else { 
-					message.channel.sendMessage(customcommands[name].response.replace(/\$rand:?{[^}]*}/g, (text) => {
-						text = text.substring(6, text.length-1).split(";");
-						return text[Math.floor(Math.random()*text.length)]
-					})); 
-				}
-				exists = true;
 			}
-		});
-		// if (!exists) message.channel.sendMessage(`Command \`${cmd}\` not found.`);
+			message.channel.sendMessage(output);
+		} else {
+			message.channel.sendMessage(customcommand.replace(/\$rand:?{[^}]*}/g, (text) => {
+				text = text.substring(6, text.length - 1).split(';');
+				return text[Math.floor(Math.random() * text.length)];
+			}));
+		}
 	}
 };

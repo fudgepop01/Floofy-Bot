@@ -47,11 +47,11 @@ module.exports = class CreateCommandCommand extends Command {
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let customcommands = settings.customcommands;
 		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
-		if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
+		// if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
 		customcommands[args.name] = {};
 		customcommands[args.name].response = args.response;
 		settings.customcommands = customcommands;
-		await redis.db.setAsync(`customcommands${msg.guild.id}`, JSON.stringify(customcommands)).catch(console.error);
+		await redis.db.setAsync(`customcommand${msg.guild.id}${args.name}`, args.response).catch(console.error);
 		await settings.save().catch(console.error);
 		return msg.reply(`A command \`${args.name}\` has been successfully created.`);
 	}

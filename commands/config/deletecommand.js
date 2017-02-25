@@ -34,11 +34,11 @@ module.exports = class DeleteCommandCommand extends Command {
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let customcommands = settings.customcommands;
 		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
-		if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
-		if (!settings[args.name]) return msg.reply(`The command \`${args.name}\` does not exist!`);
-		delete settings[args.name];
+		// if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
+		if (!customcommands[args.name]) return msg.reply(`The command \`${args.name}\` does not exist!`);
+		delete customcommands[args.name];
 		settings.customcommands = customcommands;
-		await redis.db.setAsync(`customcommands${msg.guild.id}`, JSON.stringify(customcommands)).catch(console.error);
+		await redis.db.delAsync(`customcommand${msg.guild.id}${args.name}`).catch(console.error);
 		await settings.save().catch(console.error);
 		return msg.reply(`The command \`${args.name}\` has been successfully removed.`);
 	}

@@ -5,6 +5,7 @@ const redis = new Redis();
 exports.run = async (bot, message) => {
 	if (!message || !message.guild) return;
 	const settings = await guildSettings.findOne({ where: { guildID: message.guild.id } });
+	if (!settings) return;
 	const words = await redis.db.getAsync(`filter${message.guild.id}`).then(JSON.parse);
 	const enabled = await redis.db.getAsync(`filterenabled${message.guild.id}`).then(JSON.parse);
 	const logs = settings.logs;
