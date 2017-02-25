@@ -19,7 +19,7 @@ module.exports = class LogFieldToggleCommand extends Command {
 					prompt: 'What field would you like to toggle?\n',
 					type: 'string',
 					validate: field => {
-						if (fields.includes(field)) return `Please input a valid field. The options are: ${fields.join(', ')}`;
+						if (!fields.includes(field)) return `Please input a valid field. The options are: ${fields.join(', ')}`;
 						return true;
 					}
 				},
