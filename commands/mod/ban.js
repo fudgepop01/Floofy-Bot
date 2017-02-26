@@ -32,7 +32,8 @@ module.exports = class BanUserCommand extends Command {
 
 	async run(msg, args) { // eslint-disable-line consistent-return
 		const user = args.user;
-		if (!this.client.hasPermission('BAN_MEMBERS')) return msg.reply('I do not have the `ban members` permission.');
+		const botMember = await msg.guild.fetchMember(this.client.user);
+		if (!botMember.hasPermission('BAN_MEMBERS')) return msg.reply('I do not have the `ban members` permission.');
 		await msg.say('Are you sure you want to ban this user?  (__Y__es or __N__o)');
 		return msg.embed({
 			author: {

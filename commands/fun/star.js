@@ -2,10 +2,11 @@ const { Command } = require('discord.js-commando');
 const { stripIndents } = require('common-tags');
 const moment = require('moment');
 
+const starBoard = require('../../dataProviders/postgreSQL/models/StarBoard');
 const Redis = require('../../dataProviders/redis/Redis');
 const redis = new Redis();
 
-module.exports = class ChatCommand extends Command {
+module.exports = class StarCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'star',
@@ -27,17 +28,41 @@ module.exports = class ChatCommand extends Command {
 
 	async run(msg, args) {
 		const starboard = msg.guild.channels.find('name', 'starboard');
-		if (!starboard) return;
-		let image;
-		if (args.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = args.message.attachments.first().url;
-		await starboard.send(stripIndents`
-			●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
-			**Author**: \`${args.message.author.username} #${args.message.author.discriminator}\` | **Channel**: \`${args.message.channel.name}\` | **ID**: \`${args.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
-			**Message**:
-			${args.message.cleanContent}
-			`, { file: image }).catch(null);
-		await redis.db.setAsync(`star${msg.guild.id}${msg.author.id}`, args.message.cleanContent).catch(console.error);
-		msg.delete().catch(null);
-		return;
+		if (!starboard) return msg.reply('I could not find a channel named `starboard`.')
+		if (args.message.author.id === msg.author.id) return msg.reply('sorry, you cannot star your own message!');
+		let settings = await starBoard.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await starBoard.create({ guildID: msg.guild.id });
+		let starred = settings.starred;
+		if (starred.hasOwnProperty(args.message.id)) {
+			if (starred[args.message.id].stars.includes(msg.author.id)) return msg.reply('you cannot star the same message twice!');
+			const starCount = starred[args.message.id].count+=1;
+			const starredMessage = await starboard.fetchMessage(starred[args.message.id].starredMessageID).catch(console.log);
+			const edit = starredMessage.content.replace(`⭐ ${starCount-1}`, `⭐ ${starCount}`);
+			await starredMessage.edit(edit);
+			starred[args.message.id].count = starCount;
+			starred[args.message.id].stars.push(msg.author.id);
+			settings.starred = starred;
+			await settings.save().catch(console.error);
+		} else {
+			const starCount = 1;
+			let image;
+			if (args.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = args.message.attachments.first().url;
+			const sentStar = await starboard.send(stripIndents`
+				●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
+				⭐ ${starCount}
+				**Author**: \`${args.message.author.username} #${args.message.author.discriminator}\` | **Channel**: \`${args.message.channel.name}\` | **ID**: \`${args.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
+				**Message**:
+				${args.message.cleanContent}
+				`, { file: image }).catch(null);
+			starred[args.message.id] = {};
+			starred[args.message.id].author = args.message.author.id;
+			starred[args.message.id].starredMessageID = sentStar.id;
+			starred[args.message.id].count = starCount;
+			starred[args.message.id].stars = [];
+			starred[args.message.id].stars.push(msg.author.id);
+			settings.starred = starred;
+			await settings.save().catch(console.error);
+		}
+		return msg.delete().catch(null);
 	}
 };

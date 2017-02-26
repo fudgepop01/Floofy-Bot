@@ -33,7 +33,8 @@ module.exports = class SetRoleCommand extends Command {
 		const member = args.member;
 		const user = member.user;
 		const role = args.role;
-		if (!this.client.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return msg.reply('I do not have the `manage roles` permission.');
+		const botMember = await msg.guild.fetchMember(msg.client.user);
+		if (!botMember.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return msg.reply('I do not have the `manage roles` permission.');
 		// const role = msg.guild.roles.filter(ro => ro.name.toLowerCase() === role.toLowerCase()).first();
 		await member.addRoles([role]);
 		return msg.reply(`I have added ${role.name} to ${user.username}.`);

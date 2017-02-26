@@ -40,7 +40,8 @@ module.exports = class LogFieldToggleCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let logs = settings.logs;
-		logs[args.field] = args.enabled;
+		if (!logs.fields) logs.fields = {};
+		logs.fields[args.field] = args.enabled;
 		settings.logs = logs;
 		await settings.save().catch(console.error);
 		return msg.reply(`I have ${args.enabled ? 'enabled' : 'disabled'} the logging of ${args.field}.`);

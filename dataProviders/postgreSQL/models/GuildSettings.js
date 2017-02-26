@@ -22,7 +22,7 @@ let GuildSettings = database.db.define('guildSettings', {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
-	cases: {
+	mod: {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
@@ -54,6 +54,13 @@ let GuildSettings = database.db.define('guildSettings', {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	}
+}, {
+	indexes: [
+		{
+			unique: true,
+			fields: ['guildID']
+		}
+	]
 });
 
 GuildSettings.sync();

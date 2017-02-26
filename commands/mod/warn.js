@@ -1,5 +1,7 @@
 const { Command } = require('discord.js-commando');
+const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettings');
 const { stripIndents } = require('common-tags');
+const moment = require('moment');
 
 module.exports = class WarnCommand extends Command {
 	constructor(client) {
@@ -30,24 +32,40 @@ module.exports = class WarnCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let member = args.member;
-		let user = args.member.user;
-		let warning = args.warning;
-		if (msg.author.id === user.id) return msg.channel.send('If you try to warn yourself you\'re gonna have a *baaad* time.');
-		if (msg.client.funs.isStaff(member)) return msg.channel.send('You cannot warn a fellow staff member!');
-		let warnings = msg.client.provider.get(msg.guild, 'warnings', new msg.client.methods.Collection());
-		warnings.users.set(member.user.id, warning);
-		msg.client.provider.get(msg.guild, 'warnings', warnings);
-		const modlogs = msg.client.provider.get(msg.guild, 'modlogs', {});
+		const member = args.member;
+		const user = member.user;
+		if (msg.author.id === user.id) return msg.channel.send('If you try to warn yourself, you\'re gonna have a *baaad* time.');
+		if (msg.client.funcs.isStaff(member)) return msg.channel.send('You cannot warn a fellow staff member!');
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
+		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		const channel = mod.logchannel;
+		if (!channel) return msg.reply('There is no channel for modlogs set.');
+		let mod = settings.mod;
+		const warning = args.warning;
+
+		mod.cases ? mod.cases++ : mod.cases = 1;
+		if (!mod.warnings) mod.warnings = new this.client.methods.Collection();
+		let count = mod.warnings.filter(u => u === member.id).size;
+		mod.warnings.set(mod.cases, {id: member.id, warning: warning, count: count++});
+		// unsure on ideal structure here still
+
+		//need to make a class or some shit for the embed stuff
 		let message = await msg.channel.send('Warning user...');
-		await msg.guild.channels.get(modlogs.channel).sendEmbed({
+		await msg.guild.channels.get(channel).sendEmbed({
+			author: {
+				name: `${msg.author.username}#${msg.author.discriminator}`,
+				icon: msg.author.displayAvatarURL
+			},
 			description: stripIndents`
 			**User**: ${user.username}#${user.discriminator} (${user.id})
 			**Action**: Warn
-			**Reasion**: ${warning}`
+			**Reasion**: ${warning}`,
+			footer: `${mod.cases} | ${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}`
 		});
-		if (modlogs.channel) await msg.guild.channels.get(modlogs.channel).send(`${user.username}#${user.discriminator} has received a warning: \`${warning}\``);
-		await member.sendMessage(`You've received a warning in ${msg.guild.name}.\n\`Reason:\` ${warning}`);
+
+		settings.mod = mod;
+		await settings.save().catch(console.error);
+		await member.send(`You've received a warning in ${msg.guild.name}.\n\`Reason:\` ${warning}`);
 		return message.edit(`Successfully warned ${user.username}.`);
 	}
 };

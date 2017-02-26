@@ -26,7 +26,8 @@ module.exports = class UnMuteUserCommand extends Command {
 	async run(msg, args) {
 		const member = args.member;
 		const user = member.user;
-		if (!this.client.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return msg.reply('I do not have the `manage roles` permission.');
+		const botMember = await msg.guild.fetchMember(msg.client.user);
+		if (!botMember.hasPermission('MANAGE_ROLES_OR_PERMISSIONS')) return msg.reply('I do not have the `manage roles` permission.');
 		const settings = this.client.provider.get(msg.guild, 'muted', []);
 		if (!settings.includes(member.id)) return msg.say(`The user ${member.id} isn't muted!`);
 		if (!msg.guild.roles.has(msg.guild.roles.find('name', 'Muted')).id) await msg.guild.createRole({ name: 'Muted', position: 0 }).then(() => msg.reply('A role `Muted` has been created. Make sure it\'s sorted correctly (ideally at the top)!'));

@@ -26,7 +26,8 @@ module.exports = class KickUserCommand extends Command {
 
 	async run(msg, args) {
 		const member = args.member;
-		if (!this.client.hasPermission('KICK_MEMBERS')) return msg.reply('I do not have the `kick members` permission.');
+		const botMember = await msg.guild.fetchMember(this.client.user);
+		if (!botMember.hasPermission('KICK_MEMBERS')) return msg.reply('I do not have the `kick members` permission.');
 		return member.kick()
 			.then(() => msg.say(`${args.member.user.username}#${args.member.user.discriminator} was kicked.`))
 			.catch(error => msg.reply(`There was an error trying to kick: ${error}`));
