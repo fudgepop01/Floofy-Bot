@@ -96,7 +96,7 @@ const chars = {
 		color: '00aa66'
 	},
 	lucario: {
-		alias: ['fur bait', 'hotness', 'our lord and savior', 'best character', 'favorite pornstar', 'luc', '#448', '448'],
+		alias: ['fur bait', 'hotness', 'our lord and savior', 'best character', 'favorite pornstar', '#448', '448'],
 		thumbnail: 'http://tu9srvbirvvtnirvexn0zxiuawduaw1ncy5jb200.g00.ign.com/g00/2_d3d3Lmlnbi5jb20%3D_/TU9SRVBIRVVTNiRodHRwOi8vb3lzdGVyLmlnbmltZ3MuY29tL21lZGlhd2lraS9hcGlzLmlnbi5jb20vc21hc2gtYnJvcy1wcm9qZWN0LW0vMy8zMC9NZW5TZWxjaHJDaHJGYWNlLjAzMy5wbmc%2FaTEwYy5tYXJrLmltYWdlLnR5cGU%3D_$/$/$/$/$/$/$',
 		color: '80bfff'
 	},
@@ -251,6 +251,9 @@ module.exports = class PMDataCommand extends Command {
 			thumbnail = chars[char].thumbnail;
 			color = parseInt(`0x${chars[char].color}`, 16);
 			char = char.capitalize();
+		}
+		else {
+			return message.channel.sendMessage("Please provide a character");
 		}
 
 		detail = getArrayMatch(parameters, ['detailed']);
