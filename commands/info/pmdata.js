@@ -250,7 +250,7 @@ module.exports = class PMDataCommand extends Command {
 		if (char !== -1) {
 			thumbnail = chars[char].thumbnail;
 			color = parseInt(`0x${chars[char].color}`, 16);
-			char = char.capitalize();
+			char = this.client.funcs.toTitleCase(char);
 		}
 		else {
 			return message.channel.sendMessage("Please provide a character");
@@ -332,7 +332,7 @@ module.exports = class PMDataCommand extends Command {
 			for (let category in charData) {
 				let catData = '';
 				for (let attribute in charData[category]) {
-					catData += `${attribute.capitalize()}: ${charData[category][attribute]} \n`;
+					catData += `${this.client.funcs.toTitleCase(attribute)}: ${charData[category][attribute]} \n`;
 				}
 				out.addField(category, catData, true);
 			}
