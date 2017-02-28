@@ -86,7 +86,7 @@ const chars = {
 		color: 'ffaaaa'
 	},
 	'toon link': {
-		alias: ['tink', 'tl'],
+		alias: ['tink'],
 		thumbnail: 'http://tu9srvbirvvtnirvexn0zxiuawduaw1ncy5jb200.g00.ign.com/g00/2_d3d3Lmlnbi5jb20%3D_/TU9SRVBIRVVTNiRodHRwOi8vb3lzdGVyLmlnbmltZ3MuY29tL21lZGlhd2lraS9hcGlzLmlnbi5jb20vc21hc2gtYnJvcy1wcm9qZWN0LW0vYS9hZC9NZW5TZWxjaHJDaHJGYWNlLjA0MS5wbmc%2FaTEwYy5tYXJrLmltYWdlLnR5cGU%3D_$/$/$/$/$/$/$',
 		color: '00bb88'
 	},
@@ -96,7 +96,7 @@ const chars = {
 		color: '00aa66'
 	},
 	lucario: {
-		alias: ['fur bait', 'hotness', 'our lord and savior', 'best character', 'favorite pornstar', 'luc', '#448', '448'],
+		alias: ['fur bait', 'hotness', 'our lord and savior', 'best character', 'favorite pornstar', '#448', '448'],
 		thumbnail: 'http://tu9srvbirvvtnirvexn0zxiuawduaw1ncy5jb200.g00.ign.com/g00/2_d3d3Lmlnbi5jb20%3D_/TU9SRVBIRVVTNiRodHRwOi8vb3lzdGVyLmlnbmltZ3MuY29tL21lZGlhd2lraS9hcGlzLmlnbi5jb20vc21hc2gtYnJvcy1wcm9qZWN0LW0vMy8zMC9NZW5TZWxjaHJDaHJGYWNlLjAzMy5wbmc%2FaTEwYy5tYXJrLmltYWdlLnR5cGU%3D_$/$/$/$/$/$/$',
 		color: '80bfff'
 	},
@@ -224,12 +224,12 @@ module.exports = class PMDataCommand extends Command {
 			group: 'info',
 			memberName: 'pmdata',
 			description: 'Provides info about characters from Project M',
-			examples: ['pmdata lucario', 'pmdata lucario bair'],
+			examples: ['pmdata lucario', 'pmdata lucario fair', 'pmdata lucario fair detailed'],
 
 			args: [
 				{
 					key: 'query',
-					prompt: 'Please provide a character. Additionally, moveset is optional.\n',
+					prompt: 'Please provide a character. Providing a move (and angle hi/low) is optional. You may also view more detailed data by adding \'detailed\' at the end\n',
 					type: 'string'
 				}
 			]
@@ -252,6 +252,9 @@ module.exports = class PMDataCommand extends Command {
 			color = parseInt(`0x${chars[char].color}`, 16);
 			char = char.capitalize();
 		}
+		else {
+			return message.channel.sendMessage("character not found");
+		}
 
 		detail = getArrayMatch(parameters, ['detailed']);
 
@@ -263,7 +266,7 @@ module.exports = class PMDataCommand extends Command {
 			file = jsonfile.readFileSync(path.join(__dirname, '..', '..', 'assets', 'smash', 'pm', char, 'moveOverview.json'));
 
 			let data = {};
-			if (file[type]) data = file[type][move];
+			if (file[type] && file[type][move]) data = file[type][move];
 			else return message.channel.sendMessage("Looks like the character doesn't have that move");
 
 
