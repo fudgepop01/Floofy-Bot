@@ -7,7 +7,9 @@ const moves = {
 	JabDA: ['jab', 'jab1', 'jab2', 'jab3', 'jab4', 'dashattack'],
 	Tilt: ['utilt', 'ftilt', 'ftilt2', 'ftilt3', 'ftilt high', 'ftilt low', 'dtilt', 'ctilt'],
 	Smash: ['usmash', 'fsmash', 'fsmash2', 'fsmash high', 'fsmash low', 'dsmash'],
-	Aerial: ['uair', 'fair', 'dair', 'bair', 'nair']
+	Aerial: ['uair', 'fair', 'dair', 'bair', 'nair'],
+	Special: ['neutralb', 'sideb', 'upb', 'downb'],
+	Grab: ['grab', 'fthrow', 'bthrow', 'dthrow', 'uthrow']
 };
 const chars = {
 	bowser: {
@@ -246,6 +248,10 @@ module.exports = class PMDataCommand extends Command {
 				move = getArrayMatch(parameters, moves[moveType]);
 			}
 		}
+		
+		if(type === 'Special') return message.channel.sendMessage("Sorry, specials are unavailable at the moment");
+		else if(type === 'Grab') return message.channel.sendMessage("Sorry, Grabs are unavailable at the moment");
+		
 		char = getAliasMatch(parameters, chars);
 		if (char !== -1) {
 			thumbnail = chars[char].thumbnail;
