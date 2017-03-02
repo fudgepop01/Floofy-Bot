@@ -37,8 +37,10 @@ Song.js
 /commands/music
 /commands/tags
 /commands/item
+/commands/test
 /currency
 /games
 /assets/smash
 /assets/lol
 /assets/osu
+sl.js

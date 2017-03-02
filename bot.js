@@ -4,6 +4,7 @@ const commando = require('discord.js-commando');
 const Discord = require('discord.js');
 const Currency = require('./currency/Currency');
 const Experience = require('./currency/Experience');
+const starBoard = require('./dataProviders/postgreSQL/models/StarBoard');
 const { oneLine, stripIndents } = require('common-tags');
 const path = require('path');
 const Raven = require('raven');
@@ -57,7 +58,7 @@ client.dispatcher.addInhibitor(msg => {
 client
 	.on('error', winston.error)
 	.on('warn', winston.warn)
-	.on('ready', () => {
+	.on('ready', async () => {
 		winston.info(oneLine`
 			Client ready... Logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})
 		`);
@@ -67,14 +68,11 @@ client
 		client.database = new Thonk(client);
 		client.database.initGuilds();
 		*/
-		loadFunctions(client).then(() => {
-			client.methods = {};
-			client.methods.Collection = Discord.Collection;
-			client.methods.Embed = Discord.RichEmbed;
-			// client.methods.superagent = require('superagent');
-			// client.methods.request = Discord.Request;
-			loadEvents(client);
-		});
+		await loadFunctions(client);
+		await loadEvents(client);
+		client.methods = {};
+		client.methods.Collection = Discord.Collection;
+		client.methods.Embed = Discord.RichEmbed;
 		/*
 		// memory leag debug
 	  memwatch.on('leak', function(info) {
@@ -97,16 +95,43 @@ client
 	})
 	.on('messageReactionAdd', async (messageReaction, user) => {
 		if (messageReaction.emoji.name !== '⭐') return;
-		if (!messageReaction.message.guild.channels.exists('name', 'starboard')) return;
-		let image;
-		if (messageReaction.message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = messageReaction.message.attachments.first().url;
-		await messageReaction.message.guild.channels.find('name', 'starboard').send(stripIndents`
-			●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
-			**Author**: \`${user.username} #${user.discriminator}\` | **Channel**: \`${messageReaction.message.channel.name}\` | **ID**: \`${messageReaction.message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
-			**Message**:
-			${messageReaction.message.cleanContent}
-			`).catch(null);
-		image ? await messageReaction.message.guild.channels.find('name', 'starboard').sendFile(image) : null; // eslint-disable-line no-unused-expressions
+		const message = messageReaction.message;
+		const starboard = message.guild.channels.find('name', 'starboard');
+		if (!starboard) return;
+		if (message.author.id === user.id) return;
+		let settings = await starBoard.findOne({ where: { guildID: message.guild.id } });
+		if (!settings) settings = await starBoard.create({ guildID: message.guild.id });
+		let starred = settings.starred;
+		if (starred.hasOwnProperty(message.id)) {
+			if (starred[message.id].stars.includes(user.id)) return message.reply('you cannot star the same message twice!'); // eslint-disable-line consistent-return
+			const starCount = starred[message.id].count += 1;
+			const starredMessage = await starboard.fetchMessage(starred[message.id].starredMessageID).catch(console.log);
+			const edit = starredMessage.content.replace(`⭐ ${starCount - 1}`, `⭐ ${starCount}`);
+			await starredMessage.edit(edit);
+			starred[message.id].count = starCount;
+			starred[message.id].stars.push(user.id);
+			settings.starred = starred;
+			await settings.save().catch(console.error);
+		} else {
+			const starCount = 1;
+			let image;
+			if (message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = message.attachments.first().url;
+			const sentStar = await starboard.send(stripIndents`
+				●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
+				⭐ ${starCount}
+				**Author**: \`${message.author.username} #${message.author.discriminator}\` | **Channel**: \`${message.channel.name}\` | **ID**: \`${message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
+				**Message**:
+				${message.cleanContent}
+				`, { file: image }).catch(null);
+			starred[message.id] = {};
+			starred[message.id].author = message.author.id;
+			starred[message.id].starredMessageID = sentStar.id;
+			starred[message.id].count = starCount;
+			starred[message.id].stars = [];
+			starred[message.id].stars.push(user.id);
+			settings.starred = starred;
+			await settings.save().catch(console.error);
+		}
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })

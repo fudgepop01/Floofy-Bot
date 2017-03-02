@@ -22,10 +22,6 @@ let GuildSettings = database.db.define('guildSettings', {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
-	mod: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
-		defaultValue: {}
-	},
 	flairs: {
 		type: Sequelize.JSON(), // eslint-disable-line new-cap
 		defaultValue: {}
@@ -63,6 +59,6 @@ let GuildSettings = database.db.define('guildSettings', {
 	]
 });
 
-GuildSettings.sync();
+GuildSettings.sync({force: true});
 
 module.exports = GuildSettings;

@@ -3,8 +3,6 @@ const { stripIndents } = require('common-tags');
 const moment = require('moment');
 
 const starBoard = require('../../dataProviders/postgreSQL/models/StarBoard');
-const Redis = require('../../dataProviders/redis/Redis');
-const redis = new Redis();
 
 module.exports = class StarCommand extends Command {
 	constructor(client) {
@@ -27,17 +25,18 @@ module.exports = class StarCommand extends Command {
 	}
 
 	async run(msg, args) {
+		if (!args.message) return msg.reply('Please specify a message ID.');
 		const starboard = msg.guild.channels.find('name', 'starboard');
-		if (!starboard) return msg.reply('I could not find a channel named `starboard`.')
+		if (!starboard) return msg.reply('I could not find a channel named `starboard`.');
 		if (args.message.author.id === msg.author.id) return msg.reply('sorry, you cannot star your own message!');
 		let settings = await starBoard.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await starBoard.create({ guildID: msg.guild.id });
 		let starred = settings.starred;
 		if (starred.hasOwnProperty(args.message.id)) {
 			if (starred[args.message.id].stars.includes(msg.author.id)) return msg.reply('you cannot star the same message twice!');
-			const starCount = starred[args.message.id].count+=1;
-			const starredMessage = await starboard.fetchMessage(starred[args.message.id].starredMessageID).catch(console.log);
-			const edit = starredMessage.content.replace(`⭐ ${starCount-1}`, `⭐ ${starCount}`);
+			const starCount = starred[args.message.id].count += 1;
+			const starredMessage = await starboard.fetchMessage(starred[args.message.id].starredMessageID);
+			const edit = starredMessage.content.replace(`⭐ ${starCount - 1}`, `⭐ ${starCount}`);
 			await starredMessage.edit(edit);
 			starred[args.message.id].count = starCount;
 			starred[args.message.id].stars.push(msg.author.id);
