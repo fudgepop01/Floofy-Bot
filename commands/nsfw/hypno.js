@@ -25,8 +25,8 @@ module.exports = class HypnohubCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		const nsfw = settings.nsfw;
-		if (!nsfw && !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
-		if (!nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
+		if (!nsfw || !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
+		if (!nsfw.channels || !nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
 		let str = 'No result.';
 		return superagent.get(`http://hypnohub.net/post/index.json?&tags=$${encodeURI(args.tags)}`)
 		.set('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.84 Safari/537.36')
