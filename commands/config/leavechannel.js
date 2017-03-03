@@ -33,6 +33,6 @@ module.exports = class LeaveChannelCommand extends Command {
 		leave.channel = args.channel.id;
 		settings.leave = leave;
 		await settings.save().catch(console.error);
-		return msg.reply(`I have successfully set ${args.channel} as the destination channel for welcome messages.`);
+		return msg.reply(`I have successfully set ${args.channel} as the destination channel for leave messages.`);
 	}
 };
