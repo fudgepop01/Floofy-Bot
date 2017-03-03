@@ -17,8 +17,8 @@ module.exports = class BoobsCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		const nsfw = settings.nsfw;
-		if (!nsfw && !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
-		if (!nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
+		if (!nsfw || !nsfw.enabled) return msg.channel.send('NSFW is disabled for this server.');
+		if (!nsfw.channels || !nsfw.channels.includes(msg.channel.id)) return msg.channel.send('NSFW is disabled for this channel.');
 		return superagent.get('http://api.oboobs.ru/boobs/0/1/random').then(res => {
 			msg.channel.send(`http://media.oboobs.ru/${res[0].preview}`);
 		})
