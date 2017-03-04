@@ -1,4 +1,5 @@
 const guildSettings = require('../dataProviders/postgreSQL/models/GuildSettings');
+const Case = require('../structures/Moderation');
 
 exports.run = async (bot, member) => {
   // leaves/kicks
@@ -20,9 +21,8 @@ exports.run = async (bot, member) => {
 	}
 
 	if (leave && leave.enabled === true && leave.channel) {
-		member.guild.channels.get(leave.channel).send(leave.message.replace(/\[user\]/g, member.displayName));
+		member.guild.channels.get(leave.channel).send(leave.message.replace(/USER/g, member.displayName));
 	}
-
 
 	// rolestate
 	if (rolestate && rolestate.enabled) {
@@ -35,4 +35,19 @@ exports.run = async (bot, member) => {
 		await settings.save().catch(console.error);
 		return;
 	}
+
+	// modlogs
+	/*
+	const mod = new Case(null, member, null, 'kick');
+	const channel = await mod.getChannel().catch(null);
+	if (channel) {
+		mod.addCase();
+		const embed = new bot.methods.Embed();
+		embed.setAuthor(mod.getMod('user'), mod.getMod('avatar'));
+		embed.setDescription(mod.formatDescription());
+		embed.setFooter(mod.formatFooter());
+		embed.setColor(mod.getColor());
+		await member.guild.channels.get(channel).sendEmbed(embed);
+	}
+	*/
 };

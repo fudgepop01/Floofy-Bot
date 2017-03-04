@@ -139,6 +139,7 @@ exports.run = async (bot, message) => {
 	} else if (cmd === 'rekt') {
 		message.channel.sendFile('http://i.imgur.com/tc5RhwT.gifv');
 	} else {
+		if (!message.guild) return;
 		const Redis = require('../dataProviders/redis/Redis');
 		const redis = new Redis();
 		const customcommand = await redis.db.getAsync(`customcommand${message.guild.id}${cmd}`);

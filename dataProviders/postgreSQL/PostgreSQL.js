@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const winston = require('winston');
+const logger = require('../../structures/Logger.js');
 
 const db = require('../../settings').db;
 
@@ -14,10 +14,10 @@ class Database {
 
 	start() {
 		this.database.authenticate()
-			.then(() => winston.info('Connection has been established successfully.'))
+			.then(() => logger.info('Connection has been established successfully.'))
 			.then(() => this.database.sync())
-			.then(() => winston.info('Syncing Database...'))
-			.catch(err => winston.error(`Unable to connect to the database: ${err}`));
+			.then(() => logger.info('Syncing Database...'))
+			.catch(err => logger.error(`Unable to connect to the database: ${err}`));
 	}
 }
 

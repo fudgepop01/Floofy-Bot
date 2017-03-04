@@ -24,6 +24,10 @@ module.exports = class ChatCommand extends Command {
 		});
 	}
 
+	hasPermission(msg) {
+		return this.client.options.owner === msg.author.id;
+	}
+
 	async run(msg, args) {
 		/*
 		const cb = new CleverBot;

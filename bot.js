@@ -8,8 +8,9 @@ const starBoard = require('./dataProviders/postgreSQL/models/StarBoard');
 const { oneLine, stripIndents } = require('common-tags');
 const path = require('path');
 const Raven = require('raven');
-const winston = require('winston');
 const moment = require('moment');
+const winston = require('./structures/Logger.js');
+
 /*
 const memwatch = require('memwatch-next');
 const heapdump = require('heapdump');
@@ -130,7 +131,7 @@ client
 			starred[message.id].stars = [];
 			starred[message.id].stars.push(user.id);
 			settings.starred = starred;
-			await settings.save().catch(console.error);
+			await settings.save().catch(winston.error);
 		}
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })

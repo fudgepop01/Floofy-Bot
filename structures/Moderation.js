@@ -22,13 +22,20 @@ module.exports = class Moderation {
 	}
 
 	getMod() {
-		return `${this.mod.username}#${this.mod.discriminator} (${this.mod.id})`;
+		if (this.mod) return `${this.mod.username}#${this.mod.discriminator} (${this.mod.id})`;
+		else return `Use reason \`${this.globalCaseCount}\` <new reason>`;
 	}
 
 	async getChannel() {
 		settings = await this.getAllCases();
 		if (!settings.channelID) return undefined;
 		return settings.channelID;
+	}
+
+	async getCaseMessageID(casePosition) {
+		let newCases = await this.getCase(this.type);
+		casePosition ? null : casePosition = newCases.length; // eslint-disable-line no-unused-expressions
+		return newCases[casePosition].messageID;
 	}
 
 	async getAllCases() {
@@ -54,9 +61,26 @@ module.exports = class Moderation {
 	async addCase() {
 		let newCases = await this.getCase(this.type);
 		this.incrementCase();
-		newCases.push({ userID: this.member.id, type: this.type, reason: this.reason, count: this.currentCaseCount });
+		newCases.push({ userID: this.member.id, type: this.type, count: this.currentCaseCount });
+		if (this.mod) newCases[newCases.length].mod = this.mod.id;
+		if (this.reason) newCases[newCases.length].reason = this.reason;
 		this.saveCase(newCases);
 		return;
+	}
+
+	async addCaseMessageID(caseMessageID, casePosition) {
+		let newCases = await this.getCase(this.type);
+		casePosition ? null : casePosition = newCases.length; // eslint-disable-line no-unused-expressions
+		newCases[casePosition].messageID = caseMessageID;
+		this.saveCase(newCases);
+	}
+
+	async updateCase(mod, reason, casePosition) {
+		let newCases = await this.getCase(this.type);
+		casePosition ? null : casePosition = newCases.length; // eslint-disable-line no-unused-expressions
+		newCases[casePosition].mod = mod.id;
+		newCases[casePosition].reason = reason;
+		this.saveCase(newCases);
 	}
 
 	incrementCase() {
@@ -69,7 +93,7 @@ module.exports = class Moderation {
 		return stripIndents`
 			**User**: ${this.getUser()}
 			**Action**: ${this.type}
-			**Reason**: ${this.reason}`;
+			**Reason**: ${this.reason ? this.reason : `Use reason \`${this.globalCaseCount}\` <new reason>`}`;
 	}
 
 	getColor() {

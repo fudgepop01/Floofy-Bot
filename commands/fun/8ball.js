@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { stripIdents } = require('common-tags');
+const { stripIndents } = require('common-tags');
 
 const responses = [
 	'Nope',
@@ -38,7 +38,7 @@ module.exports = class EightBallCommand extends Command {
 	}
 
 	async run(msg, args) {
-		return msg.say(stripIdents`
+		return msg.say(stripIndents`
 			🎱 ${msg.author} asked \`${args.question}\`
 			Response: ${responses[Math.floor(Math.random() * responses.length)]}
 		`);

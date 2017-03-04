@@ -29,7 +29,7 @@ exports.run = async (bot, member) => {
 		}
 	}
 	// ROLESTATE
-	if (rolestate && rolestate.enabled === true && rolestate.users && rolestate.users[member.id]) {
+	if (rolestate && rolestate.enabled && rolestate.users && rolestate.users[member.id]) {
 		let numDeletedRoles = 0;
 		let roles = rolestate.users[member.id].map(roleid => {
 			if (member.guild.roles.has(roleid)) {

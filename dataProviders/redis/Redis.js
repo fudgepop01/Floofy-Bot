@@ -1,6 +1,6 @@
 const bluebird = require('bluebird');
 const redisClient = require('redis');
-const winston = require('winston');
+const logger = require('../../structures/Logger.js');
 
 bluebird.promisifyAll(redisClient.RedisClient.prototype);
 bluebird.promisifyAll(redisClient.Multi.prototype);
@@ -15,8 +15,8 @@ class Redis {
 	}
 
 	start() {
-		this.redis.on('error', err => { winston.error(err); })
-			.on('reconnecting', () => { winston.warn('Reconnecting...'); });
+		this.redis.on('error', err => { logger.error(err); })
+			.on('reconnecting', () => { logger.warn('Reconnecting...'); });
 	}
 }
 

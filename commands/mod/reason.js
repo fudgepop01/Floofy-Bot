@@ -1,24 +1,25 @@
 const { Command } = require('discord.js-commando');
+const { stripIndents } = require('common-tags');
 const Case = require('../../structures/Moderation');
 
-module.exports = class WarnCommand extends Command {
+module.exports = class ReasonCommand extends Command {
 	constructor(client) {
 		super(client, {
-			name: 'warn',
+			name: 'reason',
 			group: 'mod',
-			memberName: 'warn',
-			description: 'Warns a user.',
+			memberName: 'reason',
+			description: 'Updates a case.',
 			guildOnly: true,
 
 			args: [
 				{
-					key: 'member',
-					prompt: 'What user would you like to warn?\n',
-					type: 'member'
+					key: 'case',
+					prompt: 'What case would you like to modify?\n',
+					type: 'integer'
 				},
 				{
 					key: 'reason',
-					prompt: 'What are you warning this user for?\n',
+					prompt: 'What should the new warning be?\n',
 					type: 'string'
 				}
 			]
@@ -26,7 +27,7 @@ module.exports = class WarnCommand extends Command {
 	}
 
 	hasPermission(msg) {
-		return msg.client.funcs.isStaff(msg.member);
+		return this.client.options.owner === msg.author.id;
 	}
 
 	async run(msg, args) {
@@ -38,15 +39,23 @@ module.exports = class WarnCommand extends Command {
 		const channel = await mod.getChannel().catch(null);
 		if (!channel) return msg.reply('There is no channel for modlogs set.');
 
-		mod.addCase();
-		let message = await msg.channel.send('Warning user...');
+		mod.updateCase(member, args.reason);
+		let message = await msg.channel.send('Updating case...');
 		const embed = new this.client.methods.Embed();
 		embed.setAuthor(mod.getMod('user'), mod.getMod('avatar'));
 		embed.setDescription(mod.formatDescription());
 		embed.setFooter(mod.formatFooter());
 		embed.setColor(mod.getColor());
-		const caseMessage = await msg.guild.channels.get(channel).sendEmbed(embed);
-		mod.addCaseMessageID(caseMessage.id);
+		const caseMessage = await msg.guild.channels.get(channel).fetchMessage(mod.getCaseMessageID());
+
+		caseMessage.edit('', {
+			embed: {
+				description: stripIndents`
+        	**User**: user
+          **Action**: kick
+          **Reason**: newReason`
+			}
+		});
 
 		await member.send(`You've received a warning in ${msg.guild.name}.\n\`Reason:\` ${args.reason}`);
 		await mod.saveCase();
