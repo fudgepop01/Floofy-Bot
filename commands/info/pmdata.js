@@ -88,7 +88,7 @@ const chars = {
 		color: 'ffaaaa'
 	},
 	'toon link': {
-		alias: ['tink', 'tl'],
+		alias: ['tink'],
 		thumbnail: 'http://tu9srvbirvvtnirvexn0zxiuawduaw1ncy5jb200.g00.ign.com/g00/2_d3d3Lmlnbi5jb20%3D_/TU9SRVBIRVVTNiRodHRwOi8vb3lzdGVyLmlnbmltZ3MuY29tL21lZGlhd2lraS9hcGlzLmlnbi5jb20vc21hc2gtYnJvcy1wcm9qZWN0LW0vYS9hZC9NZW5TZWxjaHJDaHJGYWNlLjA0MS5wbmc%2FaTEwYy5tYXJrLmltYWdlLnR5cGU%3D_$/$/$/$/$/$/$',
 		color: '00bb88'
 	},
@@ -272,8 +272,8 @@ module.exports = class PMDataCommand extends Command {
 			file = jsonfile.readFileSync(path.join(__dirname, '..', '..', 'assets', 'smash', 'pm', char, 'moveOverview.json'));
 
 			let data = {};
-			if (file[type]) data = file[type][move];
-			else return message.channel.sendMessage("Looks like the character doesn't have that move");
+			if (file[type][move]) data = file[type][move];
+			else return message.channel.sendMessage("Looks like the character doesn't have that move (if you're looking for jab, try jab1)");
 
 
 			out.setTitle(`Data For ${char}'s ${move}`);
