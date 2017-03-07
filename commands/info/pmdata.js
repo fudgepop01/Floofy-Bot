@@ -272,8 +272,13 @@ module.exports = class PMDataCommand extends Command {
 			file = jsonfile.readFileSync(path.join(__dirname, '..', '..', 'assets', 'smash', 'pm', char, 'moveOverview.json'));
 
 			let data = {};
-			if (file[type][move]) data = file[type][move];
-			else return message.channel.sendMessage("Looks like the data for this move doesn't exist (if you're looking for jab, you may need to input jab1 instead)");
+			
+			if (move == "jab" || move == "jab1") {
+				if (file[type]["jab"].move) data = file[type][move];
+				if (file[type]["jab1"].move) data = file[type][move];
+			}
+			else if (file[type][move].move) data = file[type][move];
+			else return message.channel.sendMessage("Looks like the data for this move doesn't exist");
 
 
 			out.setTitle(`Data For ${char}'s ${move}`);
