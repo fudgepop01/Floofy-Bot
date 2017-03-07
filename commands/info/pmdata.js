@@ -274,10 +274,10 @@ module.exports = class PMDataCommand extends Command {
 			let data = {};
 			
 			if (move == "jab" || move == "jab1") {
-				if (file[type]["jab"].move) data = file[type][move];
-				if (file[type]["jab1"].move) data = file[type][move];
+				if (file[type]["jab"] && file[type]["jab"].move) data = file[type][move];
+				if (file[type]["jab1"] && file[type]["jab1"].move) data = file[type][move];
 			}
-			else if (file[type][move].move) data = file[type][move];
+			else if (file[type][move] && file[type][move].move) data = file[type][move];
 			else return message.channel.sendMessage("Looks like the data for this move doesn't exist");
 
 
