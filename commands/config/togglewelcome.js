@@ -43,8 +43,7 @@ module.exports = class ServerLogsChannelCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
-		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } }) || await guildSettings.create({ guildID: msg.guild.id });
 		let welcome = settings.welcome;
 		if (!welcome[args.type]) welcome[args.type] = {};
 		args.type === 'all' ? welcome.enabled = args.enabled : welcome[args.type].enabled = args.enabled; // eslint-disable-line

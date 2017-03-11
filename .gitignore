@@ -38,9 +38,9 @@ Song.js
 /commands/tags
 /commands/item
 /commands/test
-/currency
-/games
+/structures/currency
+/structures/games
 /assets/smash
 /assets/lol
 /assets/osu
-sl.js
+/assets/quiz

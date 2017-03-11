@@ -5,7 +5,7 @@ module.exports = class ImRoleCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'im',
-			group: 'mod',
+			group: 'misc',
 			memberName: 'im',
 			description: 'Gives yourself a role.',
 			guildOnly: true,
@@ -30,11 +30,11 @@ module.exports = class ImRoleCommand extends Command {
 		// const role = msg.guild.roles.filter(ro => ro.name.toLowerCase() === role.toLowerCase()).first()
 		const member = await msg.guild.fetchMember(msg.author);
 		if (!member.roles.has(args.role.id)) {
-			await member.addRoles([args.role]);
-			return msg.reply(`I have given you the role \`${args.role.name}\`.`);
+			await member.addRole(args.role);
+			return msg.reply(`I have given you the role \`${args.role.name}\`.`).then(message => { msg.delete(5000); message.delete(5000); });
 		}	else {
-			await member.removeRoles([args.role]);
-			return msg.reply(`I have removed the role \`${args.role.name}\` from you.`);
+			await member.removeRole(args.role);
+			return msg.reply(`I have removed the role \`${args.role.name}\` from you.`).then(message => { msg.delete(5000); message.delete(5000); });
 		}
 	}
 };

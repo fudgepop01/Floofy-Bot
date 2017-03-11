@@ -3,6 +3,7 @@ exports.run = async (bot, message) => {
 	let input = message.content.toLowerCase();
 	let prefix = message.guild ? (message.guild.commandPrefix ? message.guild.commandPrefix : bot.commandPrefix) : bot.commandPrefix;
 	if (!input.startsWith(prefix) && !input.length <= 2) return;
+	if (message.guild && !message.channel.permissionsFor(bot.user).hasPermission('SEND_MESSAGES')) return;
 	let cmd = input.slice(1).split(' ')[0];
 
 	if (cmd === 'nicememe') {
@@ -139,6 +140,8 @@ exports.run = async (bot, message) => {
 	} else if (cmd === 'rekt') {
 		message.channel.sendFile('http://i.imgur.com/tc5RhwT.gifv');
 	} else {
+		cmd = message.content.slice(1).split(' ')[0];
+		// need to convert them all to lowercase
 		if (!message.guild) return;
 		const Redis = require('../dataProviders/redis/Redis');
 		const redis = new Redis();

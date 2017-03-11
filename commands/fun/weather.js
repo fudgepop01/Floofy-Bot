@@ -2,9 +2,10 @@
 
 const Canvas = require('canvas');
 const { Command } = require('discord.js-commando');
-const fs = global.Promise.promisifyAll(require('fs'));
 const path = require('path');
 const request = require('request-promise');
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 
 const config = require('../../settings');
 const version = require('../../package').version;
@@ -71,6 +72,7 @@ module.exports = class WeatherCommand extends Command {
 
 		const res = await request({
 			uri: `https://api.darksky.net/forecast/${wAPIKey}/${params}?exclude=minutely,hourly,flags&units=auto`,
+			// uri: `https://api.darksky.net/forecast/24ed55b3e92026050c615768244e2f30/37.8267,-122.4233`,
 			headers: { 'User-Agent': `FloofyBot v${version} (https://github.com/Lewdcario/Floofy-Bot/)` },
 			json: true
 		});
@@ -80,17 +82,17 @@ module.exports = class WeatherCommand extends Command {
 		const chanceofrain = Math.round((res.currently.precipProbability * 100) / 5) * 5;
 		const temperature = Math.round(res.currently.temperature);
 		const humidity = Math.round(res.currently.humidity * 100);
-		/* const windBearing = res.currently.windBearing;*/
+		const windBearing = res.currently.windBearing;
 
 		const canvas = new Canvas(400, 180);
-		/* const pointerCanvas = new Canvas(16, 16);*/
+		const pointerCanvas = new Canvas(16, 16);
 		const ctx = canvas.getContext('2d');
-		/* const pntr = pointerCanvas.getContext('2d');*/
+		const pntr = pointerCanvas.getContext('2d');
 		const base = new Image();
 		const cond = new Image();
 		const humid = new Image();
 		const precip = new Image();
-		/* const pointer = new Image();*/
+		const pointer = new Image();
 
 		let theme = 'light';
 		let fontColor = '#FFFFFF';
@@ -137,13 +139,13 @@ module.exports = class WeatherCommand extends Command {
 			// Precip Image
 			ctx.drawImage(precip, 358, 108);
 
-			/* // Pointer Image
+			// Pointer Image
 			pntr.drawImage(pointer, 35, 160);
 			pntr.patternQuality = 'billinear';
 			pntr.filter = 'billinear';
 			pntr.antialias = 'subpixel';
 			pntr.translate(7.5, 7.5);
-			pntr.rotate((windBearing || 0) * Math.PI / 180 / 10);*/
+			pntr.rotate((windBearing || 0) * Math.PI / 180 / 10);
 
 			// Titles
 			ctx.font = "16px 'Roboto Condensed'";
@@ -155,7 +157,7 @@ module.exports = class WeatherCommand extends Command {
 		cond.src = await fs.readFileAsync(path.join(__dirname, '..', '..', 'assets', 'weather', 'icons', theme, `${icon}.png`));
 		humid.src = await fs.readFileAsync(path.join(__dirname, '..', '..', 'assets', 'weather', 'icons', theme, 'humidity.png'));
 		precip.src = await fs.readFileAsync(path.join(__dirname, '..', '..', 'assets', 'weather', 'icons', theme, 'precip.png'));
-		/* pointer.src = await fs.readFileAsync(path.join(__dirname, '..', '..', 'assets', 'weather', 'icons', theme, 'pointer.png'));*/
+		pointer.src = await fs.readFileAsync(path.join(__dirname, '..', '..', 'assets', 'weather', 'icons', theme, 'pointer.png'));
 		generate();
 
 		return msg.channel.sendFile(canvas.toBuffer(), `${geocodelocation}.png`);

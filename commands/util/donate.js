@@ -12,10 +12,6 @@ module.exports = class DonateCommand extends Command {
 		});
 	}
 
-	hasPermission(msg) {
-		return this.client.options.owner === msg.author.id;
-	}
-
 	async run(msg) {
 		const owner = this.client.users.get(this.client.options.owner);
 		const embed = new this.client.methods.Embed();

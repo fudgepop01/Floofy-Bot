@@ -11,6 +11,7 @@ module.exports = class Rule34Command extends Command {
 			memberName: 'rule34',
 			description: 'Returns a random post from Rule 34. Disabled by default.',
 			examples: ['rule34 lucario order:score'],
+			guildOnly: true,
 
 			args: [
 				{

@@ -24,8 +24,11 @@ module.exports = class ProfileCommand extends Command {
 					prompt: `Which field would you like to edit? The options are: ${fields.join(', ')}.\n`,
 					type: 'string',
 					validate: (str) => {
-						if (fields.includes(str)) return true;
+						if (fields.includes(str.toLowerCase())) return true;
 						return false;
+					},
+					parse: (str) => {
+						return str.toLowerCase();
 					}
 				},
 				{

@@ -10,6 +10,7 @@ module.exports = class E621Command extends Command {
 			memberName: 'e621',
 			description: 'Returns a random post from e621. Disabled by default.',
 			examples: ['e621 lucario order:score'],
+			guildOnly: true,
 
 			args: [
 				{

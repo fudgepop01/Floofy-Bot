@@ -10,9 +10,11 @@ exports.run = async (bot, member) => {
 	const mentions = settings.mentions;
 	const leave = settings.leave;
 
-	if (logs && logs.enable && logs.channel && logs.fields.leaves !== false) {
+	const bans = await member.guild.fetchBans();
+	if (logs && logs.enable && logs.channel && logs.fields ? logs.fields.leaves !== false : !logs.fields && !bans.has(member.id) && member.guild.channels.has(logs.channel)) {
 		let embed = new bot.methods.Embed();
 		embed.setColor('#ff5050').setTimestamp().setAuthor(`${member.user.username} (${member.user.id})`, member.user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);
+		member.guild.channels.get(logs.channel).sendEmbed(embed);
 		/*
 		if (mentions && mentions.enabled && mentions.action === 'kick') embed.addField('\u274C MENTION ABUSE KICK', `${member.user.username} has been removed from the server!`);
 		else embed.addField('\u274C NEW LEAVE', `${member.user.username} has left or been kicked from the server!`);
@@ -20,7 +22,7 @@ exports.run = async (bot, member) => {
 		*/
 	}
 
-	if (leave && leave.enabled === true && leave.channel) {
+	if (leave && leave.enabled === true && leave.channel && member.guild.channels.has(leave.channel)) {
 		member.guild.channels.get(leave.channel).send(leave.message.replace(/USER/g, member.displayName));
 	}
 

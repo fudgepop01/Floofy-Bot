@@ -7,7 +7,18 @@ exports.run = async (bot, oldmsg, newmsg) => {
 	const settings = await guildSettings.findOne({ where: { guildID: newmsg.guild.id } });
 	if (!settings) return;
 	const logs = settings.logs;
-	if (logs && logs.enabled && logs.channel && logs.fields.messages !== false) {
+
+	const words = await redis.db.getAsync(`filter${newmsg.guild.id}`).then(JSON.parse);
+	const enabled = await redis.db.getAsync(`filterenabled${newmsg.guild.id}`).then(JSON.parse);
+	if (enabled && words) {
+		const member = await newmsg.guild.fetchMember(newmsg.author);
+		if (!bot.funcs.isStaff(member) && bot.funcs.hasFilteredWord(words, bot.funcs.filterWord(newmsg.content))) {
+			await newmsg.author.send(`Your updated message \`${newmsg.content}\` was deleted due to breaking the filter!`);
+			await newmsg.delete();
+		}
+	}
+
+	if (logs && logs.enabled && logs.channel && logs.fields ? logs.fields.messages !== false : !logs.fields && newmsg.guild.channels.has(logs.channel)) {
 		if (oldmsg !== null && newmsg !== null && oldmsg.content !== newmsg.content) {
 			let embed = new bot.methods.Embed(), oldout = '', newout = '';
 
@@ -19,8 +30,8 @@ exports.run = async (bot, oldmsg, newmsg) => {
 			embed.setColor('#ffbb00').setTimestamp(new Date()).setAuthor(`${oldmsg.author.username} (${oldmsg.author.id})`, oldmsg.author.avatarURL);
 			embed.addField(`\uD83D\uDCDD UPDATED MESSAGE ${oldmsg.channel}`, `**Old**: ${oldout}\n**New**: ${newout}`);
 			embed.setFooter(bot.user.username, bot.user.avatarURL);
-			if (oldmsg.attachments && oldmsg.attachments.first() && bot.funcs.validateUrl(oldmsg.attachments.first().url)) embed.addField('Old Attachment', oldmsg.attachments.first().url);
-			if (newmsg.attachments && newmsg.attachments.first() && oldmsg.attachments.first().url !== newmsg.attachments.first().url && bot.funcs.validateUrl(newmsg.attachments.first().url)) embed.addField('New Attachment', newmsg.attachments.first().url);
+			if (bot.funcs.hasImage(oldmsg)) embed.addField('Old Attachment', bot.funcs.validateImageURL(oldmsg));
+			if (bot.funcs.hasImage(newmsg) && (oldmsg.attachments.first().url !== newmsg.attachments.first().url)) embed.addField('New Attachment', bot.funcs.validateImageURL(newmsg));
 			newmsg.guild.channels.get(logs.channel).sendEmbed(embed).catch(() => null);
 		}
 	}

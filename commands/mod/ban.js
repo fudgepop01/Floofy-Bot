@@ -35,7 +35,7 @@ module.exports = class BanUserCommand extends Command {
 		const botMember = await msg.guild.fetchMember(this.client.user);
 		if (!botMember.hasPermission('BAN_MEMBERS')) return msg.reply('I do not have the `ban members` permission.');
 		await msg.say('Are you sure you want to ban this user?  (__Y__es or __N__o)');
-		return msg.embed({
+		msg.embed({
 			author: {
 				name: `${user.username}#${user.discriminator} (${user.id})`,
 				icon_url: user.avatarURL // eslint-disable-line camelcase
@@ -48,22 +48,13 @@ module.exports = class BanUserCommand extends Command {
 			],
 			timestamp: new Date()
 		}).then(() => {
-			msg.channel.awaitMessages(response => ['yes', 'no', 'cancel'].includes(response.content), {
+			msg.channel.awaitMessages(response => ['yes', 'no', 'cancel'].includes(response.content) && response.author === msg.author, {
 				max: 1,
 				time: 30000
 			}).then(async (co) => { // eslint-disable-line consistent-return
 				if (['yes'].includes(co.first().content)) {
 					let message = await msg.channel.send('Banning user...');
 					await msg.guild.ban(user, 7).catch(error => msg.reply(`There was an error trying to ban:\n${error}`));
-					const modlogs = msg.client.provider.get(msg.guild, 'modslogs', {});
-					if (modlogs.channel) {
-						await msg.guild.channels.get(modlogs.channel).sendEmbed({
-							description: stripIndents`
-									**User**: ${user.username}#${user.discriminator} (${user.id})
-									**Action**: Ban
-									**Reasion**: ${args.reason}`
-						});
-					}
 					return message.edit(`${user.username}#${user.discriminator} was banned.`);
 				} else if (['no', 'cancel'].includes(co.first().content)) {
 					return msg.say('Got it, I won\'t ban the user.');

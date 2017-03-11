@@ -1,22 +1,24 @@
-global.Promise = require('bluebird');
+// global.Promise = require('bluebird');
 
 const commando = require('discord.js-commando');
 const Discord = require('discord.js');
+
 const Currency = require('./currency/Currency');
 const Experience = require('./currency/Experience');
 const starBoard = require('./dataProviders/postgreSQL/models/StarBoard');
-const { oneLine, stripIndents } = require('common-tags');
+
+const { oneLine } = require('common-tags');
+const { URL } = require('url');
 const path = require('path');
 const Raven = require('raven');
-const moment = require('moment');
 const winston = require('./structures/Logger.js');
 
-/*
+
 const memwatch = require('memwatch-next');
 const heapdump = require('heapdump');
 const cron = require('node-schedule');
 const moment = require('moment-timezone');
-*/
+
 
 const Database = require('./dataProviders/postgreSQL/PostgreSQL');
 const Redis = require('./dataProviders/redis/Redis');
@@ -31,10 +33,13 @@ const database = new Database();
 const redis = new Redis();
 const client = new commando.Client({
 	owner: config.owner,
-	commandPrefix: ',',
+	commandPrefix: '.',
 	unknownCommandResponse: false,
 	disableEveryone: true,
-	clientOptions: { shardCount: 'auto' }
+	clientOptions: {
+		shardCount: 'auto',
+		disabledEvents: ['USER_NOTE_UPDATE', 'VOICE_STATE_UPDATE', 'TYPING_START', 'VOICE_SERVER_UPDATE']
+	}
 });
 
 client.coreBaseDir = `${__dirname}/`;
@@ -51,13 +56,18 @@ redis.start();
 client.setProvider(new SequelizeProvider(database.db));
 
 client.dispatcher.addInhibitor(msg => {
+	if (msg.channel.topic && msg.channel.topic.includes('[block]')) return 'Command blocked because the topic contains [block].';
+	return false;
+});
+
+client.dispatcher.addInhibitor(msg => {
 	const blacklist = client.provider.get('global', 'userBlacklist', []);
 	if (!blacklist.includes(msg.author.id)) return false;
 	return `User ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}) has been blacklisted.`;
 });
 
 client
-	.on('error', winston.error)
+	.on('error', console.error)
 	.on('warn', winston.warn)
 	.on('ready', async () => {
 		winston.info(oneLine`
@@ -74,19 +84,33 @@ client
 		client.methods = {};
 		client.methods.Collection = Discord.Collection;
 		client.methods.Embed = Discord.RichEmbed;
-		/*
+
+		const guildSettings = require('./dataProviders/postgreSQL/models/GuildSettings');
+		let settings, channel;
+		for (let [, guild] of client.guilds) {
+			settings = await guildSettings.findOne({ where: { guildID: guild.id } });
+			// this should be in redis perhaps
+			if (!settings || !settings.reactions) continue;
+			channel = client.channels.get(settings.reactions.channel);
+			if (!channel) continue;
+			await channel.fetchMessages(10);
+			await channel.fetchPinnedMessages();
+		}
+
+
 		// memory leag debug
-	  memwatch.on('leak', function(info) {
-	    console.error(info);
-	    var file = './out/floofybot-' + process.pid + '-' + Date.now() + '.heapsnapshot';
-	    heapdump.writeSnapshot(file, function(err){
-	      if (err) console.error(err);
-	      else console.error('Wrote snapshot: ' + file);
-	    });
-	  });
-		*/
+		memwatch.on('leak', (info) => {
+			console.error(info);
+			const file = `./floofybot-${process.pid}-${Date.now()}.heapsnapshot`;
+			heapdump.writeSnapshot(file, (err) => {
+				if (err) console.error(err);
+				else console.error(`Wrote snapshot: ${file}`);
+			});
+		});
+
+
 		let servers = ` in ${client.guilds.size} servers!`;
-		let users = ` with ${client.users.size} users!`;
+		let users = ` with ${client.guilds.reduce((a, b) => a + b.memberCount, 0)} users!`;
 		let games = [`type ${client.commandPrefix}help for commands!`, 'with database testing...', servers, `type ${client.commandPrefix}join to invite me!`, users];
 		client.user.setGame(servers);
 		setInterval(() => {
@@ -96,43 +120,205 @@ client
 	})
 	.on('messageReactionAdd', async (messageReaction, user) => {
 		if (messageReaction.emoji.name !== '⭐') return;
+
 		const message = messageReaction.message;
 		const starboard = message.guild.channels.find('name', 'starboard');
 		if (!starboard) return;
-		if (message.author.id === user.id) return;
+		if (message.author.id === user.id) {
+			messageReaction.remove(user.id);
+			return message.channel.send(`${user}, you cannot star your own messages!`); // eslint-disable-line consistent-return
+		}
+
 		let settings = await starBoard.findOne({ where: { guildID: message.guild.id } });
 		if (!settings) settings = await starBoard.create({ guildID: message.guild.id });
-		let starred = settings.starred;
+		const starred = settings.starred;
+
 		if (starred.hasOwnProperty(message.id)) {
-			if (starred[message.id].stars.includes(user.id)) return message.reply('you cannot star the same message twice!'); // eslint-disable-line consistent-return
+			if (starred[message.id].stars.includes(user.id)) return message.channel.send(`${user}, you cannot star the same message twice!`); // eslint-disable-line consistent-return
 			const starCount = starred[message.id].count += 1;
-			const starredMessage = await starboard.fetchMessage(starred[message.id].starredMessageID).catch(console.log);
-			const edit = starredMessage.content.replace(`⭐ ${starCount - 1}`, `⭐ ${starCount}`);
-			await starredMessage.edit(edit);
+			const starredMessage = await starboard.fetchMessage(starred[message.id].starredMessageID).catch(() => null); // eslint-disable-line
+			const starredMessageContent = starred[message.id].starredMessageContent;
+			const starredMessageAttachmentImage = starred[message.id].starredMessageImage;
+			const starredMessageDate = starred[message.id].starredMessageDate;
+
+			let edit;
+			if ((starCount - 1) < 5) edit = starredMessage.embeds[0].footer.text.replace(`${starCount - 1} ⭐`, `${starCount} ⭐`);
+			else if ((starCount - 1) >= 5 < 10) edit = starredMessage.embeds[0].footer.text.replace(`${starCount - 1} ⭐`, `${starCount} 🌟`);
+			else if ((starCount - 1) >= 10) edit = starredMessage.embeds[0].footer.text.replace(`${starCount - 1} 🌟`, `${starCount} 🌠`);
+
+			await starredMessage.edit({
+				embed: {
+					author: {
+						icon_url: message.author.displayAvatarURL, // eslint-disable-line camelcase
+						name: `${message.author.username}#${message.author.discriminator} (${message.author.id})`
+					},
+					color: 0xFFAC33,
+					fields: [
+						{
+							name: 'ID',
+							value: message.id,
+							inline: true
+						},
+						{
+							name: 'Channel',
+							value: message.channel.toString(),
+							inline: true
+						},
+						{
+							name: 'Message',
+							value: starredMessageContent ? starredMessageContent : '\u200B'
+						}
+					],
+					image: { url: starredMessageAttachmentImage ? starredMessageAttachmentImage : undefined },
+					timestamp: starredMessageDate,
+					footer: { text: edit }
+				}
+			}).catch(() => null); // eslint-disable-line
+
 			starred[message.id].count = starCount;
 			starred[message.id].stars.push(user.id);
 			settings.starred = starred;
-			await settings.save().catch(console.error);
+
+			await settings.save();
 		} else {
 			const starCount = 1;
-			let image;
-			if (message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/))) image = message.attachments.first().url;
-			const sentStar = await starboard.send(stripIndents`
-				●▬▬▬▬▬▬▬▬▬▬▬▬▬▬●
-				⭐ ${starCount}
-				**Author**: \`${message.author.username} #${message.author.discriminator}\` | **Channel**: \`${message.channel.name}\` | **ID**: \`${message.id}\` | **Time**: \`${moment(new Date()).format('DD/MM/YYYY @ hh:mm:ss a')}\`
-				**Message**:
-				${message.cleanContent}
-				`, { file: image }).catch(null);
+			let attachmentImage;
+			const extensions = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
+			const linkRegex = /https?:\/\/(?:\w+\.)?[\w-]+\.[\w]{2,3}(?:\/[\w-_\.]+)+\.(?:png|jpg|jpeg|gif|webp)/; // eslint-disable-line no-useless-escape
+
+			if (message.attachments.some(attachment => {
+				try {
+					const url = new URL(attachment.url);
+					const ext = path.extname(url.pathname);
+					return extensions.has(ext);
+				} catch (err) {
+					if (err.message !== 'Invalid URL') winston.error(err);
+					return false;
+				}
+			})) attachmentImage = message.attachments.first().url;
+
+			if (!attachmentImage) {
+				const linkMatch = message.content.match(linkRegex);
+				if (linkMatch) {
+					try {
+						const url = new URL(linkMatch[0]);
+						const ext = path.extname(url.pathname);
+						if (extensions.has(ext)) attachmentImage = linkMatch[0]; // eslint-disable-line max-depth
+					} catch (err) {
+						if (err.message === 'Invalid URL') winston.info('No valid image link.'); // eslint-disable-line max-depth
+						else winston.error(err);
+					}
+				}
+			}
+
+			const sentStar = await starboard.send({
+				embed: {
+					author: {
+						icon_url: message.author.displayAvatarURL, // eslint-disable-line camelcase
+						name: `${message.author.username}#${message.author.discriminator} (${message.author.id})`
+					},
+					color: 0xFFAC33,
+					fields: [
+						{
+							name: 'ID',
+							value: message.id,
+							inline: true
+						},
+						{
+							name: 'Channel',
+							value: message.channel.toString(),
+							inline: true
+						},
+						{
+							name: 'Message',
+							value: message.content ? message.cleanContent.substring(0, 1000) : '\u200B'
+						}
+					],
+					image: { url: attachmentImage ? attachmentImage.toString() : undefined },
+					timestamp: message.createdAt,
+					footer: { text: `${starCount} ⭐` }
+				}
+			}).catch(() => null); // eslint-disable-line
+
 			starred[message.id] = {};
-			starred[message.id].author = message.author.id;
+			starred[message.id].authorID = message.author.id;
 			starred[message.id].starredMessageID = sentStar.id;
+			starred[message.id].starredMessageContent = message.cleanContent;
+			starred[message.id].starredMessageImage = attachmentImage || '';
+			starred[message.id].starredMessageDate = message.createdAt;
 			starred[message.id].count = starCount;
 			starred[message.id].stars = [];
 			starred[message.id].stars.push(user.id);
 			settings.starred = starred;
-			await settings.save().catch(winston.error);
+
+			await settings.save();
 		}
+	})
+	.on('messageReactionRemove', async (messageReaction, user) => {
+		if (messageReaction.emoji.name !== '⭐') return;
+
+		const message = messageReaction.message;
+		const starboard = message.guild.channels.find('name', 'starboard');
+		if (!starboard) return;
+
+		const settings = await starBoard.findOne({ where: { guildID: message.guild.id } });
+		if (!settings) return;
+		let starred = settings.starred;
+
+		if (!starred.hasOwnProperty(message.id)) return;
+		if (!starred[message.id].stars.includes(user.id)) return;
+
+		const starCount = starred[message.id].count -= 1;
+		const starredMessage = await starboard.fetchMessage(starred[message.id].starredMessageID).catch(() => null); // eslint-disable-line
+
+		if (starred[message.id].count === 0) {
+			delete starred[message.id];
+			await starredMessage.delete().catch(() => null); // eslint-disable-line
+		} else {
+			const starredMessageContent = starred[message.id].starredMessageContent;
+			const starredMessageAttachmentImage = starred[message.id].starredMessageImage;
+			const starredMessageDate = starred[message.id].starredMessageDate;
+
+			let edit;
+			if ((starCount + 1) < 5) edit = starredMessage.embeds[0].footer.text.replace(`${starCount + 1} ⭐`, `${starCount} ⭐`);
+			else if ((starCount + 1) >= 5 < 10) edit = starredMessage.embeds[0].footer.text.replace(`${starCount + 1} 🌟`, `${starCount} ⭐`);
+			else if ((starCount + 1) >= 10) edit = starredMessage.embeds[0].footer.text.replace(`${starCount + 1} 🌠`, `${starCount} 🌟`);
+
+			await starredMessage.edit({
+				embed: {
+					author: {
+						icon_url: message.author.displayAvatarURL, // eslint-disable-line camelcase
+						name: `${message.author.username}#${message.author.discriminator} (${message.author.id})`
+					},
+					color: 0xFFAC33,
+					fields: [
+						{
+							name: 'ID',
+							value: message.id,
+							inline: true
+						},
+						{
+							name: 'Channel',
+							value: message.channel.toString(),
+							inline: true
+						},
+						{
+							name: 'Message',
+							value: starredMessageContent ? starredMessageContent : '\u200B'
+						}
+					],
+					image: { url: starredMessageAttachmentImage ? starredMessageAttachmentImage : undefined },
+					timestamp: starredMessageDate,
+					footer: { text: edit }
+				}
+			}).catch(() => null); // eslint-disable-line
+
+			starred[message.id].count = starCount;
+			starred[message.id].stars.splice(starred[message.id].stars.indexOf(user.id));
+		}
+
+		settings.starred = starred;
+		await settings.save();
 	})
 	.on('disconnect', () => { winston.warn('Disconnected!'); })
 	.on('reconnect', () => { winston.warn('Reconnecting...'); })
@@ -162,7 +348,8 @@ client
 		const hasImageAttachment = message.attachments.some(attachment => attachment.url.match(/\.(png|jpg|jpeg|gif|webp)$/));
 		const moneyEarned = hasImageAttachment ? Math.ceil(Math.random() * 7) + 5 : Math.ceil(Math.random() * 7) + 1;
 
-		Currency.addBalance(message.author.id, moneyEarned);
+		// Currency.addBalance(message.author.id, moneyEarned);
+		Currency._changeBalance(message.author.id, moneyEarned);
 
 		earnedRecently.push(message.author.id);
 		setTimeout(() => {
@@ -181,7 +368,7 @@ client
 					const notifs = message.guild.settings.get('levelNotifs', false);
 					if (notifs) message.reply(`Congratulations, you have leveled up to Level ${newLevel}!`);
 				}
-			}).catch(winston.error);
+			}).catch(() => null);
 
 			gainedXPRecently.push(message.author.id);
 			setTimeout(() => {
@@ -192,7 +379,7 @@ client
 	})
 	.on('commandError', (cmd, err) => {
 		if (err instanceof commando.FriendlyError) return;
-		winston.error(`Error in command ${cmd.groupID}:${cmd.memberName}`, err);
+		console.error(`Error in command ${cmd.groupID}:${cmd.memberName}`, err);
 	})
 	.on('commandBlocked', (msg, reason) => {
 		winston.info(oneLine`
@@ -237,6 +424,7 @@ client.registry
 		['music', 'Music'],
 		['tags', 'Tags'],
 		['fun', 'Fun'],
+		['misc', 'Miscellaneous'],
 		['nsfw', 'NSFW'],
 		['test', 'Testing']
 	])
@@ -247,3 +435,7 @@ client.registry
 	.registerDefaultCommands({ eval_: false });
 
 client.login(config.token);
+
+process.on('unhandledRejection', err => {
+ 	console.error('Uncaught Promise Error: \n' + err.stack); // eslint-disable-line
+});

@@ -85,7 +85,7 @@ module.exports = class KHCommand extends Command {
 	async run(msg, args) { // eslint-disable-line consistent-return
 		const char = getAliasMatch(args.params, charAliases).match;
 		const alias = getAliasMatch(args.params, charAliases).alias;
-		if (char === -1) return msg.reply('that character does not exist!');
+		if (!char || char === -1) return msg.reply('that character does not exist!');
 		const getMove = args.params.substring(args.params.indexOf(alias) + alias.length + 1);
 		if (getMove.length < 3 && getMove.length !== 0) return msg.reply('that move name is too short!');
 		const embed = new this.client.methods.Embed();
@@ -161,10 +161,10 @@ module.exports = class KHCommand extends Command {
 };
 function camelToNorm(str) {
 	return str
-	.replace(/([A-Z])/g, ' $1')
-	.replace(/^./, (string) => {
-		return string.toUpperCase();
-	});
+		.replace(/([A-Z])/g, ' $1')
+		.replace(/^./, (string) => {
+			return string.toUpperCase();
+		});
 }
 
 function startsWithAny(str, arr) {
@@ -188,12 +188,10 @@ function getAliasMatch(str, obj) {
 }
 
 function translateAttribute(id) {
-	const attributeIds = [{ id: 1, name: 'Air Acceleration' }, { id: 2, name: 'Air Deceleration' }, { id: 3, name: 'Airdodge' }, { id: 4, name: 'Air Friction' }, { id: 5, name: 'Airspeed' }, { id: 6, name: 'Counters' }, { id: 7, name: 'Dash Length' }, { id: 8, name: 'Fall Speed' }, { id: 9, name: 'Getup Options' }, { id: 10, name: 'Gravity' }, { id: 11, name: 'Item toss up' }, { id: 12, name: 'Jab Lock' }, { id: 13, name: 'Jumps' }, { id: 14, name: 'Jumpsquat' }, { id: 15, name: 'Ledge Roll' }, { id: 16, name: 'Reflectors' }, { id: 17, name: 'Rolls' }, { id: 18, name: 'Run Speed' }, { id: 19, name: 'Shields' }, { id: 20, name: 'Smash Charge Release' }, { id: 21, name: 'Spotdodge' }, { id: 22, name: 'Tech' }, { id: 23, name: 'Traction' }, { id: 24, name: 'Trip' }, { id: 25, name: 'Walk Speed' }, { id: 26, name: 'Weight' }];
+	const attributeIds = [{ id: 1, name: 'Air Acceleration' }, { id: 2, name: 'Air Deceleration' }, { id: 3, name: 'Airdodge' }, { id: 4, name: 'Air Friction' }, { id: 5, name: 'Airspeed' }, { id: 6, name: 'Counters' }, { id: 7, name: 'Dash Length' }, { id: 8, name: 'Fall Speed' }, { id: 9, name: 'Getup Options' }, { id: 10, name: 'Gravity' }, { id: 11, name: 'Item toss up' }, { id: 12, name: 'Jab Lock' }, { id: 13, name: 'Jumps' }, { id: 14, name: 'Jumpsquat' }, { id: 15, name: 'Ledge Roll' }, { id: 16, name: 'Reflectors' }, { id: 17, name: 'Rolls' }, { id: 18, name: 'Run Speed' }, { id: 19, name: 'Shields' }, { id: 20, name: 'Smash Charge Release' }, { id: 21, name: 'Spotdodge' }, { id: 22, name: 'Tech' }, { id: 23, name: 'Traction' }, { id: 24, name: 'Trip' }, { id: 25, name: 'Walk Speed' }, { id: 26, name: 'Walk Speed' }];
 
 	for (let attribute of attributeIds) {
 		if (attribute.id === id) return attribute.name;
 	}
-	return 'not found';
+	return 'Weight and Height';
 }
-
-String.prototype.capitalize = function() { return this.charAt(0).toUpperCase() + this.slice(1); };

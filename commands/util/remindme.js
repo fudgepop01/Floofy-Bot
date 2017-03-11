@@ -32,6 +32,7 @@ module.exports = class RemindMeCommand extends Command {
 		const remind = args.remind;
 
 		const remindTime = sherlock.parse(remind);
+		if (!remindTime.startDate) return msg.reply('I could not parse a time for your remind, please be more clear.');
 		const time = remindTime.startDate.getTime() - Date.now();
 
 		const preRemind = await msg.say(stripIndents`

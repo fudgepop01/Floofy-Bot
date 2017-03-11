@@ -4,16 +4,16 @@ const guildSettings = require('../../dataProviders/postgreSQL/models/GuildSettin
 module.exports = class ViewConfigCommand extends Command {
 	constructor(client) {
 		super(client, {
-			name: 'viewconfig',
+			name: 'viewconfigold',
 			group: 'config',
-			memberName: 'viewconfig',
+			memberName: 'viewconfigold',
 			description: 'Displays configuration for the server.',
 			guildOnly: true
 		});
 	}
 
 	hasPermission(msg) {
-		return msg.member.hasPermission('MANAGE_GUILD');
+		return this.client.options.owner === msg.author.id;
 	}
 
 	async run(msg) {

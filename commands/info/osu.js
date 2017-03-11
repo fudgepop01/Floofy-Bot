@@ -28,7 +28,7 @@ module.exports = class OsuCommand extends Command {
 			headers: { 'User-Agent': `Floofy Bot v${config.version}` },
 			qs: { k: config.osu, u: args.user }, json: true // eslint-disable-line
 		};
-		const res = await request(options);
+		const res = await request(options).catch(err => console.error);
 		if (!res) return msg.reply('I could not find anyone under that username.');
 		const user = res[0];
 		if (!user) return msg.reply('I could not find anyone under that username.');

@@ -35,16 +35,14 @@ module.exports = class UploadCommand extends Command {
 
 		const res = await request.defaults({ encoding: null })(link).catch(() => null);
 		fs.writeFileSync(dir, res);
-		// const file = fs.readFileSync(dir);
-
 		superagent
-		.post(`${baseURL}/api/upload`)
-		.set('Content-Type', 'multipart/form-data')
-		.type('files[]')
-		.set('token', token)
-		.attach('files[]', dir)
-		.then(img => msg.channel.sendFile(`http://${img.body.files[0].url}`))
-		.catch(null);
+			.post(`${baseURL}/api/upload`)
+			.set('Content-Type', 'multipart/form-data')
+			.type('files[]')
+			.set('token', token)
+			.attach('files[]', dir)
+			.then(img => msg.channel.sendFile(`http://${img.body.files[0].url}`))
+			.catch(null);
 		// i need a domain name
 	}
 };

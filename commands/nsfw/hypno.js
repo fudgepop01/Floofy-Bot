@@ -10,6 +10,7 @@ module.exports = class HypnohubCommand extends Command {
 			memberName: 'hypno',
 			description: 'Returns a random post from hypnohub. Disabled by default.',
 			examples: ['hypno order:score'],
+			guildOnly: true,
 
 			args: [
 				{

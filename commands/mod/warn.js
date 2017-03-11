@@ -26,7 +26,8 @@ module.exports = class WarnCommand extends Command {
 	}
 
 	hasPermission(msg) {
-		return msg.client.funcs.isStaff(msg.member);
+		// return msg.client.funcs.isStaff(msg.member);
+		return this.client.options.owner === msg.author.id;
 	}
 
 	async run(msg, args) {

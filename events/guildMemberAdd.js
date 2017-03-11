@@ -9,7 +9,7 @@ exports.run = async (bot, member) => {
 	const logs = settings.logs;
 	let rolestate = settings.rolestate;
 
-	if (logs && logs.enabled && logs.channel && logs.fields.joins !== false) {
+	if (logs && logs.enabled && logs.channel && logs.fields ? logs.fields.joins !== false : !logs.fields && member.guild.channels.has(logs.channel)) {
 		let embed = new bot.methods.Embed();
     // TODO: say how old the account is, also improve code here, its fucking shit man
 		embed.setColor('#66ff99').setTimestamp(new Date()).setAuthor(`${member.user.username} (${member.user.id})`, member.user.avatarURL);
@@ -21,7 +21,7 @@ exports.run = async (bot, member) => {
 
   // welcome messages
 	if (welcome && welcome.enabled === true) {
-		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message) member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
+		if (welcome.pm && welcome.pm.enabled === true && welcome.pm.message && member.guild.channels.has(logs.channel)) member.sendMessage(welcome.pm.message.replace(/\[user\]/g, member));
 
 		if (welcome.public && welcome.public.enabled !== false && welcome.public.message) {
 			if (welcome.public.channel && member.guild.channels.get(welcome.public.channel)) member.guild.channels.get(welcome.public.channel).sendMessage(welcome.public.message.replace(/USER/g, member));
@@ -37,7 +37,7 @@ exports.run = async (bot, member) => {
 			}	else { numDeletedRoles++; }
 		});
 		member.addRoles(roles).then(async () => {
-			if (logs && logs.channel && logs.enabled) {
+			if (logs && logs.channel && logs.enabled && member.guild.channels.has(logs.channel)) {
 				let embed = new bot.methods.Embed();
 				embed.setColor('#3333ff').setTimestamp(new Date()).setAuthor(`${member.user.username} (${member.user.id})`, member.user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);
 				embed.addField('\u26A0\uFE0F ROLESTATE', `I have reinstated the roles for \`${member.user.username}#${member.user.discriminator}\`.`);

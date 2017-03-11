@@ -58,7 +58,7 @@ const chars = {
 		color: '555588'
 	},
 	'ice climbers': {
-		alias: ['ics', 'icies', 'ic'],
+		alias: ['ics', 'icies'],
 		thumbnail: 'http://tu9srvbirvvtnirvexn0zxiuawduaw1ncy5jb200.g00.ign.com/g00/2_d3d3Lmlnbi5jb20%3D_/TU9SRVBIRVVTNiRodHRwOi8vb3lzdGVyLmlnbmltZ3MuY29tL21lZGlhd2lraS9hcGlzLmlnbi5jb20vc21hc2gtYnJvcy1wcm9qZWN0LW0vNC80OS9NZW5TZWxjaHJDaHJGYWNlLjAxNi5wbmc%2FaTEwYy5tYXJrLmltYWdlLnR5cGU%3D_$/$/$/$/$/$/$',
 		color: 'dd66ff'
 	},
@@ -248,18 +248,17 @@ module.exports = class PMDataCommand extends Command {
 				move = getArrayMatch(parameters, moves[moveType]);
 			}
 		}
-		
-		if(type === 'Special') return message.channel.sendMessage("Sorry, specials are unavailable at the moment");
-		else if(type === 'Grab') return message.channel.sendMessage("Sorry, Grabs are unavailable at the moment");
-		
+
+		if (type === 'Special') return message.channel.sendMessage('Sorry, specials are unavailable at the moment');
+		else if (type === 'Grab') return message.channel.sendMessage('Sorry, Grabs are unavailable at the moment');
+
 		char = getAliasMatch(parameters, chars);
 		if (char !== -1) {
 			thumbnail = chars[char].thumbnail;
 			color = parseInt(`0x${chars[char].color}`, 16);
 			char = this.client.funcs.toTitleCase(char);
-		}
-		else {
-			return message.channel.sendMessage("Please provide a character");
+		}		else {
+			return message.channel.sendMessage('Please provide a character');
 		}
 
 		detail = getArrayMatch(parameters, ['detailed']);
@@ -272,12 +271,12 @@ module.exports = class PMDataCommand extends Command {
 			file = jsonfile.readFileSync(path.join(__dirname, '..', '..', 'assets', 'smash', 'pm', char, 'moveOverview.json'));
 
 			let data = {};
-			
-			if (move == "jab" || move == "jab1") {
-				if (file[type]["jab"]]) data = file[type]["jab"];
-				if (file[type]["jab1"]) data = file[type]["jab1"];
+
+			if (move === 'jab' || move === 'jab1') {
+				if (file[type].jab) move = 'jab';
+				if (file[type].jab1) move = 'jab1';
 			}
-			else if (file[type][move]) data = file[type][move];
+			if (file[type][move]) data = file[type][move];
 			else return message.channel.sendMessage("Looks like the data for this move doesn't exist");
 
 

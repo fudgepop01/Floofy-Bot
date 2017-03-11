@@ -9,7 +9,8 @@ module.exports = class BoobsCommand extends Command {
 			aliases: ['breasts'],
 			group: 'nsfw',
 			memberName: 'boobs',
-			description: 'Outputs a random breast picture. Disabled by default.'
+			description: 'Outputs a random breast picture. Disabled by default.',
+			guildOnly: true
 		});
 	}
 

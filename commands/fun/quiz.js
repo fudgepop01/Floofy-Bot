@@ -1,8 +1,9 @@
 const { Command } = require('discord.js-commando');
+const Currency = require('../../currency/Currency');
+const { stripIndents } = require('common-tags');
 const fs = require('fs');
 const path = require('path');
-
-// const config = require('../../settings');
+const winston = require('../../structures/Logger.js');
 
 module.exports = class QuizCommand extends Command {
 	constructor(client) {
@@ -12,31 +13,36 @@ module.exports = class QuizCommand extends Command {
 			memberName: 'quiz',
 			description: 'Sends a random question an expects a correct answer.'
 		});
+
+		this.quizzes = new Map();
 	}
 
 	async run(msg) {
+		if (this.quizzes.has(msg.guild.id)) return msg.reply('please finish the current quiz before attempting to start a new one.');
 		const quiz = await JSON.parse(fs.readFileSync(path.join(__dirname, '../../assets/quiz/quiz.json'), 'utf-8'));
-		// jsonfile.readFile(path.join(__dirname, '../../config/user/uconfig.json'), (err, data) => {
 		const item = quiz[Math.floor(Math.random() * quiz.length)];
 		msg.say(item.q)
-			.then(() => {
+			.then(async () => {
+				this.quizzes.set(msg.guild.id, true);
 				msg.channel.awaitMessages(answer => item.a.join('|').toLowerCase().includes(answer.content.toLowerCase()), {
 					max: 1,
 					time: 30000,
 					errors: ['time']
 				})
 					.then((collected) => {
-						/* let user = collected.first().author.id;
-						if (!uconfig[user]) uconfig[user] = {};
-						if (!uconfig[user].points) { uconfig[user].points = 100; }
-						uconfig[user].points += 10;
-						jsonfile.writeFileSync(path.join(__dirname, '../../config/user/uconfig.json'), uconfig, { spaces: 4 });*/
-						msg.say(`We have a winner! *${collected.first().author.username}* had a right answer with \`${collected.first().content}\`!\n10 points have bene awarded!`);
-						// make dougnut currency system instead?
+						this.quizzes.delete(msg.guild.id);
+						const message = collected.first();
+						const winner = message.author;
+						Currency.changeBalance(message.author.id, 10);
+						msg.say(stripIndents`
+							We have a winner! *${winner.username}* had a right answer with \`${message.content}\`!
+							10 ${Currency.plural} have been awarded!
+						`);
 					})
 					.catch(() => {
+						this.quizzes.delete(msg.guild.id);
 						msg.say('Seems no one got it! Oh well.');
 					});
-			}).catch(error => msg.say(error.text));
+			}).catch(error => winston.error(error.text));
 	}
 };

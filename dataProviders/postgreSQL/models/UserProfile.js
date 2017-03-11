@@ -35,7 +35,7 @@ let UserProfile = database.db.define('userProfiles', {
 		defaultValue: 'default'
 	},
 	smashProfile: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	}
 });

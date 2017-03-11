@@ -33,10 +33,11 @@ module.exports = class ServerLogsChannelCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let welcome = settings.welcome;
+		if (!welcome.private) welcome.private = {};
 		welcome.private.message = args.message;
 		settings.welcome = welcome;
 		return settings.save().then(async () => {
-			msg.reply(`I have successfully set ${args.message} as the private welcome message.`);
+			msg.reply(`I have successfully the new private welcome message:\n\`${args.message}\``);
 		}).catch(console.error);
 	}
 };

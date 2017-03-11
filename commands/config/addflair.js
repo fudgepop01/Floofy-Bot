@@ -27,8 +27,7 @@ module.exports = class AddFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
-		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		const settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } }) || await guildSettings.create({ guildID: msg.guild.id });
 		let flairs = settings.flairs;
 		if (!flairs.roles) flairs.roles = [];
 		if (flairs.roles.includes(args.role.id)) return msg.reply(`${args.role.name} is already in the list of self-assignable roles.`);

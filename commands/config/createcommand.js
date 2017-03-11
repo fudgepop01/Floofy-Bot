@@ -20,14 +20,17 @@ module.exports = class CreateCommandCommand extends Command {
 			examples: [
 				'createcommand say hello',
 				'createcommand randompicture $rand:{picture1; picture2; picture3}',
-				'createcommand onething Dogs are $rand:{adorable ; cute ; sweet} aren\'t they?',
-				'createcommand dogsorcats $rand:{Dogs; Cats} are $rand"{adorable; cute; sweet} aren\'t they?'
+				'createcommand onething Dogs are $rand:{adorable; cute; sweet} aren\'t they?',
+				'createcommand dogsorcats $rand:{Dogs; Cats} are $rand:{adorable; cute; sweet} aren\'t they?'
 			],
 			args: [
 				{
 					key: 'name',
 					prompt: 'Please enter the desired name of the command.',
-					type: 'string'
+					type: 'string',
+					parse: (str) => {
+						return str.toLowerCase();
+					}
 				},
 				{
 					key: 'response',
@@ -46,8 +49,7 @@ module.exports = class CreateCommandCommand extends Command {
 		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
 		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
 		let customcommands = settings.customcommands;
-		// if (!args.name.includes(',')) args.name = [args.name.slice(0, 0), ',', args.name.slice(0)].join('');
-		// if (args.name.includes(',')) args.name = args.name.replace(',', '').trim();
+		if (args.name.includes(',') || args.name.includes('|')) return msg.reply(`The way commands are made has been redone. Please use ${msg.guild.commandPrefix}help createcommand for more information.`);
 		customcommands[args.name] = {};
 		customcommands[args.name].response = args.response;
 		settings.customcommands = customcommands;

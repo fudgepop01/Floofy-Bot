@@ -5,7 +5,7 @@ exports.run = async (bot, server, user) => {
 	if (!settings) return;
 	const logs = settings.logs;
 	// const mentions = bot.provider.get(server, 'mentions');
-	if (logs.enabled && logs.channel && logs.fields.bans !== false) {
+	if (logs.enabled && logs.channel && logs.fields ? logs.fields.bans !== false : !logs.fields && server.channels.has(logs.channel)) {
 		let embed = new bot.methods.Embed();
 		embed.setColor('#ff0000').setTimestamp(new Date()).setAuthor(`${user.username} (${user.id})`, user.avatarURL).setFooter(bot.user.username, bot.user.avatarURL);
 		/* if (mentions && mentions.enabled) embed.addField('\uD83D\uDEAB FILTER BAN', `${user.username} has been banned from the server for surpassing the mention limit!`);

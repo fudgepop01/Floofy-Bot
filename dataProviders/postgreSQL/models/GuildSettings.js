@@ -6,48 +6,50 @@ const database = new Database();
 
 let GuildSettings = database.db.define('guildSettings', {
 	guildID: Sequelize.STRING,
+	customRep: Sequelize.STRING,
+	customRepImage: Sequelize.STRING,
 	customcommands: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	welcome: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	leave: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	rolestate: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	flairs: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	reactions: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
-		defaultValue: {}
-	},
-	infractions: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	filter: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	logs: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	mentions: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
+		defaultValue: {}
+	},
+	quiz: {
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	},
 	nsfw: {
-		type: Sequelize.JSON(), // eslint-disable-line new-cap
+		type: Sequelize.JSONB(), // eslint-disable-line new-cap
 		defaultValue: {}
 	}
 }, {
@@ -59,6 +61,6 @@ let GuildSettings = database.db.define('guildSettings', {
 	]
 });
 
-GuildSettings.sync({force: true});
+GuildSettings.sync();
 
 module.exports = GuildSettings;

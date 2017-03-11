@@ -9,7 +9,8 @@ module.exports = class AssCommand extends Command {
 			aliases: ['butts'],
 			group: 'nsfw',
 			memberName: 'ass',
-			description: 'Outputs a random ass picture. Disabled by default.'
+			description: 'Outputs a random ass picture. Disabled by default.',
+			guildOnly: true
 		});
 	}
 

@@ -3,7 +3,7 @@ const Sequelize = require('sequelize');
 const Database = require('../PostgreSQL');
 
 const database = new Database();
-
+/*
 let Modlogs = database.db.define('modlogs', {
 	guildID: Sequelize.STRING,
 	channelID: Sequelize.STRING,
@@ -32,7 +32,19 @@ let Modlogs = database.db.define('modlogs', {
 		defaultValue: '[]'
 	}
 });
+*/
+let Modlogs = database.db.define('modlogs', {
+	guildID: Sequelize.STRING,
+	userID: Sequelize.STRING,
+	globalCaseCount: {
+		type: Sequelize.INTEGER,
+		unique: true
+	},
+	type: Sequelize.STRING,
+	reason: Sequelize.STRING,
+	caseCount: Sequelize.INTEGER
+});
 
-Modlogs.sync({ force: true });
+Modlogs.sync();
 
 module.exports = Modlogs;

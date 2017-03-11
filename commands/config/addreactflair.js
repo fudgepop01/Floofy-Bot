@@ -32,10 +32,12 @@ module.exports = class AddReactFlairCommand extends Command {
 	}
 
 	async run(msg, args) {
-		let settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } });
-		if (!settings) settings = await guildSettings.create({ guildID: msg.guild.id });
+		const settings = await guildSettings.findOne({ where: { guildID: msg.guild.id } }) || await guildSettings.create({ guildID: msg.guild.id });
 		let reactions = settings.reactions;
-		reactions[args.role.id] = args.emoji.id ? args.emoji.id : args.emoji;
+		if (!reactions.roles) reactions.roles = [];
+		if (!reactions.emojis) reactions.emojis = [];
+		reactions.roles.push(args.role.id);
+		reactions.emojis.push(args.emoji.hasOwnProperty('id') ? args.emoji.id : args.emoji);
 		settings.reactions = reactions;
 		await settings.save().catch(console.error);
 		return msg.reply(`I have successfully added ${args.role.name} and ${args.emoji} to the list of self-assignable roles by reactions.`);

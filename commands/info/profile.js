@@ -30,7 +30,8 @@ module.exports = class ProfileCommand extends Command {
 				{
 					key: 'user',
 					prompt: 'what user would you like to have information on?\n',
-					type: 'user'
+					type: 'user',
+					default: ''
 				}
 			]
 		});
@@ -39,19 +40,21 @@ module.exports = class ProfileCommand extends Command {
 	async run(message, args) {
 		let bot = message.client;
 		let embed = new bot.methods.Embed();
-		const profile = await UserProfile.findOne({ where: { userID: args.user.id } });
-
-		if (args.user === bot.users.get(owner)) {
+		const user = args.user.hasOwnProperty('id') ? args.user : message.author;
+		const profile = await UserProfile.findOne({ where: { userID: user.id } });
+		if (!profile) return message.reply('no profile has been set here!');
+		if (user === bot.users.get(owner)) {
+			const target = bot.users.get(owner);
 			embed.setURL('https://twitter.com/Lewdicario');
-			embed.setAuthor(`${bot.users.get(owner).username}#${bot.users.get(owner).discriminator}`, bot.users.get(owner).avatarURL);
+			embed.setAuthor(`${target.username}#${target.discriminator}`, target.avatarURL);
 			embed.setThumbnail('http://i.imgur.com/Q9jaVGc.gif');
 			embed.addField("Hello, I'm the creator of Floofy Bot!", "[Ask bot questions here!](https://discord.gg/0yUWR2OBEc62vtFU)\n[Invite Floofy with this link!](https://discordapp.com/oauth2/authorize?client_id=177222966935814153&scope=bot&permissions=66186303)\n[I do commissions, check it out if you'd like!](https://twitter.com/Lewdicario/status/748752095923150848)");
-		}	else if (args.user === bot.users.get('69910888961806336')) {
-			let user = bot.users.get('69910888961806336');
-			embed.setAuthor(`${user.username}#${user.discriminator}`, user.avatarURL);
+		}	else if (user === bot.users.get('69910888961806336')) {
+			const target = bot.users.get('69910888961806336');
+			embed.setAuthor(`${target.username}#${target.discriminator}`, target.avatarURL);
 			embed.addField("Hello, I'm the co-creator of Floofy Bot!", "[Ask bot questions here!](https://discord.gg/0yUWR2OBEc62vtFU)\n[Invite Floofy with this link!](https://discordapp.com/oauth2/authorize?client_id=177222966935814153&scope=bot&permissions=66186303)\n[My friend does commissions, check it out if you'd like!](https://twitter.com/Lewdicario/status/748752095923150848)");
 		} else {
-			embed.setAuthor(`${args.user.username}'s Profile`, args.user.avatarURL);
+			embed.setAuthor(`${user.username}'s Profile`, user.avatarURL);
 		}
 		// thanks programmix <3
 		Object.keys(profile.smashProfile).forEach(key => {

@@ -5,7 +5,7 @@ exports.run = async (bot, server, user) => {
 	const settings = await guildSettings.findOne({ where: { guildID: server.id } });
 	if (!settings) return;
 	const logs = settings.logs;
-	if (logs && logs.enabled && logs.channel && logs.fields.bans !== false) {
+	if (logs && logs.enabled && logs.channel && logs.fields ? logs.fields.bans !== false : !logs.fields && server.channels.has(logs.channel)) {
 		let embed = new bot.methods.Embed();
 		embed.setColor('#66ff99');
     // might change colour to lime green
