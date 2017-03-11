@@ -92,7 +92,7 @@ module.exports = class KHCommand extends Command {
 		const url = 'http://api.kuroganehammer.com/api/characters/';
 		let out = '';
 		const charAttributes = await request.get(`${url}name/${char.replace(/ /g, '')}`).catch(console.error);
-		if(!charAttributes.body) msg.reply('unfortunately it seems that the site is experiencing issues at the moment... try again later.')
+		if(!charAttributes) msg.reply('unfortunately it seems that the site is experiencing issues at the moment... try again later.')
 		embed.setThumbnail(charAttributes.body.thumbnailUrl);
 		embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
 		embed.setDescription('Kurogane Hammer Data');
