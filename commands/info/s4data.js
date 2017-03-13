@@ -83,6 +83,7 @@ module.exports = class KHCommand extends Command {
 	}
 
 	async run(msg, args) { // eslint-disable-line consistent-return
+		args.params = args.params.toLowerCase();
 		const char = getAliasMatch(args.params, charAliases).match;
 		const alias = getAliasMatch(args.params, charAliases).alias;
 		if (!char || char === -1) return msg.reply('that character does not exist!');
