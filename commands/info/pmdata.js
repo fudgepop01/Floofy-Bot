@@ -285,7 +285,7 @@ module.exports = class PMDataCommand extends Command {
 			out.setColor(color);
 
 			for (item in data) {
-				if (!['flags', 'filePath'].includes(item) && data[item] !== -1) {
+				if (!['flags', 'filePath'].includes(item) && data[item] !== -1 && data[item].length > 0) {
 					out.addField(item, data[item], true);
 				}
 			}
